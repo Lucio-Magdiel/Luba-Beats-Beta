@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
         email: buyerEmail,
         phone: guestPhone || '999888777',
       },
-      expirationHours: 24,
+      expirationHours: 48,
     });
 
     if (!orderResult.success) {

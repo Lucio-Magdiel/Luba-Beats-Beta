@@ -224,7 +224,7 @@ satisfactoriamente en Luba Beats Marketplace a través de la pasarela Culqi.
   };
 
   // Abrir Culqi Checkout Oficial 3DS Modal
-  const handleOpenCulqiCheckout = () => {
+  const handleOpenCulqiCheckout = async () => {
     setErrorMessage(null);
 
     if (
@@ -235,22 +235,55 @@ satisfactoriamente en Luba Beats Marketplace a través de la pasarela Culqi.
       !culqiConfig.publicKey.includes('tu_llave')
     ) {
       try {
+        setIsProcessing(true);
+
+        // 1. Generar la Orden en Culqi Backend para habilitar Yape, Tarjetas y Billeteras sin error CCKT-702
+        let orderId: string | undefined = undefined;
+        try {
+          const orderRes = await fetch('/api/checkout/culqi/order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              items: items.map((item) => ({
+                beatId: item.beat.id,
+                licenseTier: item.license.tier,
+              })),
+              currency,
+            }),
+          });
+          const orderData = await orderRes.json();
+          if (orderRes.ok && orderData.success && orderData.orderId) {
+            orderId = orderData.orderId;
+            console.log('[Culqi Checkout] Orden previa creada:', orderId);
+          } else {
+            console.warn('[Culqi Checkout] No se pudo crear orden previa:', orderData?.error);
+          }
+        } catch (e) {
+          console.warn('[Culqi Checkout] Error de red creando orden:', e);
+        }
+
         window.Culqi.publicKey = culqiConfig.publicKey;
-        window.Culqi.settings({
+
+        const settingsConfig: any = {
           title: 'Luba Beats Marketplace',
           currency: currency,
           amount: Math.round(displayAmount * 100),
-        });
+        };
+        if (orderId) {
+          settingsConfig.order = orderId;
+        }
+
+        window.Culqi.settings(settingsConfig);
 
         window.Culqi.options({
           lang: 'es',
           installments: false,
           paymentMethods: {
             tarjeta: true,
-            yape: true,
-            billetera: true,
-            bancaMovil: true,
-            agente: true,
+            yape: Boolean(orderId), // Requiere la orden previa para evitar error CCKT-702
+            billetera: Boolean(orderId),
+            bancaMovil: Boolean(orderId),
+            agente: Boolean(orderId),
             cuotealo: false,
           },
           style: {
@@ -263,10 +296,12 @@ satisfactoriamente en Luba Beats Marketplace a través de la pasarela Culqi.
           },
         });
 
+        setIsProcessing(false);
         window.Culqi.open();
         return;
       } catch (err) {
         console.warn('[Culqi] Fallback a modal nativo por:', err);
+        setIsProcessing(false);
       }
     }
 
@@ -479,16 +514,19 @@ satisfactoriamente en Luba Beats Marketplace a través de la pasarela Culqi.
                       <div className="rounded-xl border border-purple-500/30 bg-purple-950/30 p-3 text-xs text-purple-200 space-y-1.5">
                         <div className="flex items-center gap-1.5 font-bold text-purple-300">
                           <CreditCard className="h-4 w-4 text-purple-400" />
-                          <span>Tarjetas Oficiales de Prueba Culqi (Sandbox Perú)</span>
+                          <span>Tarjetas Oficiales de Prueba Culqi (Sandbox)</span>
                         </div>
                         <p className="text-[11px] text-zinc-300 font-mono">
-                          Visa Exitosa: <strong className="text-emerald-400">4111 1100 0000 0021</strong>
+                          Visa Débito: <strong className="text-emerald-400">4111 1111 1111 1111</strong> | Exp: <strong>12/30</strong> | CVV: <strong>123</strong>
                         </p>
                         <p className="text-[11px] text-zinc-300 font-mono">
-                          Exp: <strong className="text-white">12/28</strong> | CVV: <strong className="text-white">123</strong>
+                          Mastercard: <strong className="text-emerald-400">5111 1111 1111 1118</strong> | Exp: <strong>12/30</strong> | CVV: <strong>039</strong>
+                        </p>
+                        <p className="text-[10px] text-zinc-300">
+                          <strong className="text-amber-400 font-semibold">Obligatorio:</strong> En el formulario de Culqi debes escribir tu correo electrónico para que se active el botón de pago.
                         </p>
                         <p className="text-[10px] text-zinc-400">
-                          En Yape Sandbox puedes usar el celular <strong>900 000 001</strong> y cualquier código de 6 dígitos.
+                          Yape Sandbox: Celular <strong>900 000 001</strong> | Código OTP: <strong>123456</strong>
                         </p>
                       </div>
                     )}
@@ -507,8 +545,16 @@ satisfactoriamente en Luba Beats Marketplace a través de la pasarela Culqi.
                       <h4 className="text-sm font-bold text-white">Escanea el código QR o yapea a:</h4>
                       <p className="font-mono text-base font-bold text-purple-300">994 235 517 (Lucio Magdiel Baca Sapa)</p>
                       <p className="text-[11px] text-zinc-400">
-                        También puedes pagar mediante Yape con código de aprobación dentro del Checkout de Culqi.
+                        También puedes pagar mediante Yape con código de aprobación generado en tu app.
                       </p>
+                      <button
+                        type="button"
+                        onClick={handleOpenCulqiCheckout}
+                        className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-purple-500/40 bg-purple-950/60 px-3 py-1.5 text-xs font-semibold text-purple-200 hover:bg-purple-900/60 transition-colors"
+                      >
+                        <Smartphone className="h-3.5 w-3.5 text-purple-400" />
+                        <span>Abrir Yape en Pasarela Culqi (con Código)</span>
+                      </button>
                     </div>
                   </div>
                 )}
