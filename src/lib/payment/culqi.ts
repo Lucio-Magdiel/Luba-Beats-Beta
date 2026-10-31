@@ -4,15 +4,24 @@ import Culqi from 'culqi-node';
  * Entorno y llaves de Culqi
  */
 export function getCulqiConfig() {
-  const secretKey =
+  let secretKey =
     process.env.CULQI_SECRET_KEY ||
     process.env.CULQI_SECRET_KEY_TEST ||
-    'sk_test_eqPzpP5TXhgMtX9F';
+    '';
 
-  const publicKey =
+  let publicKey =
     process.env.NEXT_PUBLIC_CULQI_PUBLIC_KEY ||
     process.env.CULQI_PUBLIC_KEY_TEST ||
-    'pk_test_ijtlipA73AniJvki';
+    '';
+
+  // Si la variable de entorno en Vercel tiene el placeholder de plantilla o está vacía, usar las llaves reales de Magdiel
+  if (!secretKey || secretKey.includes('tu_llave') || secretKey.includes('xxxxxxxx')) {
+    secretKey = 'sk_test_eqPzpP5TXhgMtX9F';
+  }
+
+  if (!publicKey || publicKey.includes('tu_llave') || publicKey.includes('xxxxxxxx')) {
+    publicKey = 'pk_test_ijtlipA73AniJvki';
+  }
 
   const isTest = secretKey.startsWith('sk_test_') || publicKey.startsWith('pk_test_');
   const isConfigured = Boolean(secretKey && !secretKey.includes('tu_llave') && !secretKey.includes('xxxxxxxx'));
