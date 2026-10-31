@@ -51,6 +51,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (currentUser.estado === 'suspendido') {
+      return NextResponse.json(
+        { error: 'Tu cuenta ha sido suspendida por incumplimiento de las reglas comunitarias (acumulación de strikes). No puedes subir pistas al catálogo.' },
+        { status: 403 }
+      );
+    }
+
     const formData = await req.formData();
 
     const audioFile = formData.get('audio') as File | null;

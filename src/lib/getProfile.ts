@@ -85,7 +85,7 @@ export async function getUserProfile(username: string): Promise<UserProfileData 
       },
     });
 
-    if (!dbUser) {
+    if (!dbUser || dbUser.estado === 'suspendido') {
       return null;
     }
 

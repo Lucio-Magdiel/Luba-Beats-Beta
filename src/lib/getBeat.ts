@@ -83,6 +83,10 @@ export async function getBeatBySlugOrId(slugOrId: string): Promise<Beat | null> 
     }
 
     if (dbBeat) {
+      if (dbBeat.estado === 'eliminado' || dbBeat.usuarios?.estado === 'suspendido') {
+        return null;
+      }
+
       const priceNum = Number(dbBeat.precio) || 0;
       const isFree = dbBeat.tipo === 'musica' || priceNum === 0;
 

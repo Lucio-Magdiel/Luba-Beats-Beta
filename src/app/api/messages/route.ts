@@ -181,13 +181,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No puedes enviarte mensajes a ti mismo' }, { status: 400 });
     }
 
-    // Verificar que el receptor exista
+    // Verificar que el emisor no esté suspendido
+    const senderUser = await prisma.usuarios.findUnique({
+      where: { id: sessionUserId },
+    });
+
+    if (senderUser?.estado === 'suspendido') {
+      return NextResponse.json(
+        { error: 'Tu cuenta ha sido suspendida por moderación y no puedes enviar mensajes.' },
+        { status: 403 }
+      );
+    }
+
+    // Verificar que el receptor exista y no esté suspendido
     const targetUser = await prisma.usuarios.findUnique({
       where: { id: receptorId },
     });
 
     if (!targetUser) {
       return NextResponse.json({ error: 'El usuario destinatario no existe' }, { status: 404 });
+    }
+
+    if (targetUser.estado === 'suspendido') {
+      return NextResponse.json(
+        { error: 'No es posible enviar mensajes a un usuario con la cuenta suspendida.' },
+        { status: 403 }
+      );
     }
 
     // Crear mensaje

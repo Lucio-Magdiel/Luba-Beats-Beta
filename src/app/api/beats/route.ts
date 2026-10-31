@@ -57,7 +57,10 @@ export async function GET() {
   try {
     const dbBeats = await prisma.beats.findMany({
       where: {
-        estado: 'publico'
+        estado: 'publico',
+        usuarios: {
+          estado: { not: 'suspendido' },
+        },
       },
       include: {
         usuarios: {

@@ -10,6 +10,7 @@ export async function GET() {
     // Obtener creadores (productores, artistas o usuarios que han subido contenido o se han registrado en los últimos 2 días)
     const users = await prisma.usuarios.findMany({
       where: {
+        estado: { not: 'suspendido' },
         OR: [
           { tipo: { in: ['productor', 'artista', 'super_admin'] } },
           { beats: { some: {} } },
