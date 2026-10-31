@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Music2, Shield, Heart } from 'lucide-react';
+import { Music2, Shield, Heart, Code2, Sparkles } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   return (
@@ -79,10 +79,25 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/5 pt-8 text-xs text-zinc-500">
+        <div className="mt-12 flex flex-col md:flex-row items-center justify-between gap-4 border-t border-white/5 pt-8 text-xs text-zinc-500">
           <div>
             © {new Date().getFullYear()} Luba Beats Beta. Todos los derechos reservados.
           </div>
+
+          {/* Developer Credit Link */}
+          <Link
+            href="/desarrollador"
+            className="group inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-950/40 hover:bg-purple-900/40 px-3.5 py-1.5 text-xs text-zinc-300 transition-all hover:border-purple-400/60 shadow-sm hover:scale-105 active:scale-95"
+            title="Conoce al desarrollador del proyecto"
+          >
+            <Code2 className="h-3.5 w-3.5 text-purple-400 group-hover:rotate-12 transition-transform" />
+            <span>Desarrollador:</span>
+            <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 group-hover:underline">
+              Magdiel UCHIHA
+            </span>
+            <Sparkles className="h-3 w-3 text-cyan-400 animate-pulse" />
+          </Link>
+
           <div className="flex items-center gap-1">
             <span>Hecho con</span>
             <Heart className="h-3.5 w-3.5 text-pink-500 fill-pink-500" />
