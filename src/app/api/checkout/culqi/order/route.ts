@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma';
 import { createCulqiOrder } from '@/lib/payment/culqi';
 import { compras_licencia } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 const calculateServerPrice = (
   basePrice: number,
   license: 'basic' | 'premium' | 'exclusive',

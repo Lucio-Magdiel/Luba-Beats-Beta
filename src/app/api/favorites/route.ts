@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 
+export const dynamic = 'force-dynamic';
+
 // GET: Obtener lista de IDs de beats favoritos del usuario autenticado
 export async function GET() {
   try {

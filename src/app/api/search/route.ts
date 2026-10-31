@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { Beat, ItemType, MusicalKey, MusicGenre, MusicMood } from '@/types/beat';
 import { MOCK_BEATS } from '@/data/mockBeats';
 
+export const dynamic = 'force-dynamic';
+
 const generateWaveform = (seed: number, count = 55): number[] => {
   const result: number[] = [];
   for (let i = 0; i < count; i++) {

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 
+export const dynamic = 'force-dynamic';
+
 // GET: Obtener mensajes de una conversación o lista de conversaciones
 export async function GET(req: NextRequest) {
   try {

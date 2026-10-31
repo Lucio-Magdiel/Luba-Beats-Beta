@@ -4,6 +4,8 @@ import { auth } from "@/auth";
 import { compras_licencia } from "@prisma/client";
 import { createCulqiCharge } from "@/lib/payment/culqi";
 
+export const dynamic = 'force-dynamic';
+
 interface CheckoutItem {
   beatId: number | string;
   producerId?: number;

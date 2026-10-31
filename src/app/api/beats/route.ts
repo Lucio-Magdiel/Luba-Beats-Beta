@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Beat, ItemType, MusicalKey, MusicGenre, MusicMood } from '@/types/beat';
 
+export const dynamic = 'force-dynamic';
+
 // Utility to generate aesthetic waveform array
 const generateWaveform = (seed: number, count = 55): number[] => {
   const result: number[] = [];
