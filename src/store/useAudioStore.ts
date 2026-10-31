@@ -48,6 +48,7 @@ interface AudioStore {
   activeCategory: 'todo' | 'beat' | 'musica';
   uploadedBeats: Beat[];
   catalog: Beat[];
+  isQueueOpen: boolean;
 
   initCatalog: () => Promise<void>;
   setCatalog: (beats: Beat[]) => void;
@@ -68,6 +69,17 @@ interface AudioStore {
   prevBeat: () => void;
   addToQueue: (beat: Beat) => void;
   toggleRepeat: () => void;
+
+  // YouTube Music Queue / Playlist Methods
+  setIsQueueOpen: (open: boolean) => void;
+  toggleQueueOpen: () => void;
+  setQueue: (queue: Beat[]) => void;
+  removeFromQueue: (beatId: string) => void;
+  moveQueueItem: (fromIndex: number, direction: 'up' | 'down') => void;
+  reorderQueue: (fromIndex: number, toIndex: number) => void;
+  shuffleQueue: () => void;
+  clearQueue: () => void;
+  playFromQueue: (index: number) => void;
 }
 
 export const useAudioStore = create<AudioStore>((set, get) => ({
@@ -83,6 +95,7 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
   activeCategory: 'todo',
   uploadedBeats: [],
   catalog: [],
+  isQueueOpen: false,
 
   initCatalog: async () => {
     try {
@@ -285,5 +298,88 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
     const modes: ('off' | 'all' | 'one')[] = ['off', 'all', 'one'];
     const nextIndex = (modes.indexOf(repeatMode) + 1) % modes.length;
     set({ repeatMode: modes[nextIndex] });
+  },
+
+  setIsQueueOpen: (isQueueOpen) => set({ isQueueOpen }),
+  
+  toggleQueueOpen: () => set((state) => ({ isQueueOpen: !state.isQueueOpen })),
+
+  setQueue: (queue) => set({ queue }),
+
+  removeFromQueue: (beatId) => {
+    const { queue, currentBeat, nextBeat } = get();
+    const newQueue = queue.filter((b) => b.id !== beatId);
+
+    // If removing the currently playing beat, jump to next or stop
+    if (currentBeat?.id === beatId) {
+      if (newQueue.length > 0) {
+        nextBeat();
+      } else {
+        set({ queue: [], currentBeat: null, isPlaying: false });
+        return;
+      }
+    }
+    set({ queue: newQueue });
+  },
+
+  moveQueueItem: (fromIndex, direction) => {
+    const { queue } = get();
+    const toIndex = direction === 'up' ? fromIndex - 1 : fromIndex + 1;
+    if (toIndex < 0 || toIndex >= queue.length) return;
+
+    const newQueue = [...queue];
+    const [movedItem] = newQueue.splice(fromIndex, 1);
+    newQueue.splice(toIndex, 0, movedItem);
+    set({ queue: newQueue });
+  },
+
+  reorderQueue: (fromIndex, toIndex) => {
+    const { queue } = get();
+    if (
+      fromIndex < 0 ||
+      fromIndex >= queue.length ||
+      toIndex < 0 ||
+      toIndex >= queue.length ||
+      fromIndex === toIndex
+    ) {
+      return;
+    }
+    const newQueue = [...queue];
+    const [movedItem] = newQueue.splice(fromIndex, 1);
+    newQueue.splice(toIndex, 0, movedItem);
+    set({ queue: newQueue });
+  },
+
+  shuffleQueue: () => {
+    const { queue, currentBeat } = get();
+    if (queue.length <= 1) return;
+
+    // Keep current beat at the top, shuffle remaining upcoming tracks
+    const others = queue.filter((b) => b.id !== currentBeat?.id);
+    for (let i = others.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [others[i], others[j]] = [others[j], others[i]];
+    }
+
+    const newQueue = currentBeat ? [currentBeat, ...others] : others;
+    set({ queue: newQueue });
+  },
+
+  clearQueue: () => {
+    const { currentBeat } = get();
+    set({ queue: currentBeat ? [currentBeat] : [] });
+  },
+
+  playFromQueue: (index) => {
+    const { queue } = get();
+    if (index < 0 || index >= queue.length) return;
+    const targetBeat = queue[index];
+    set({
+      currentBeat: targetBeat,
+      isPlaying: true,
+      currentTime: 0,
+      seekTarget: 0,
+      duration: targetBeat.duration,
+    });
   }
 }));
