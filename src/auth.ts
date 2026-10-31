@@ -162,8 +162,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           // Asignar los datos del usuario en la base de datos
           user.id = String(dbUser.id);
-          (user as any).role = dbUser.tipo;
-          (user as any).nombre_usuario = dbUser.nombre_usuario;
+          user.role = dbUser.tipo;
+          user.nombre_usuario = dbUser.nombre_usuario;
           user.name = dbUser.nombre_usuario;
           return true;
         } catch (error) {
@@ -176,9 +176,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as { role?: string }).role;
+        token.role = user.role;
         token.name = user.name;
-        token.nombre_usuario = (user as any).nombre_usuario || user.name;
+        token.nombre_usuario = user.nombre_usuario || user.name || undefined;
         token.picture = user.image;
       }
       return token;
@@ -186,8 +186,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = (token.id as string) || session.user.id;
-        (session.user as unknown as Record<string, unknown>).role = token.role;
-        (session.user as unknown as Record<string, unknown>).nombre_usuario = token.nombre_usuario || token.name;
+        session.user.role = token.role as string | undefined;
+        session.user.nombre_usuario = (token.nombre_usuario as string | undefined) || session.user.name || undefined;
       }
       return session;
     },
