@@ -198,7 +198,7 @@ a través de la plataforma oficial Luba Beats (https://beats.luba-home.online).
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="flex justify-between items-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
               <p className="text-xs text-zinc-400">
                 Mostrando {filteredPurchases.length} de {purchases.length} compras registradas.
               </p>
@@ -207,7 +207,7 @@ a través de la plataforma oficial Luba Beats (https://beats.luba-home.online).
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Buscar por título, productor o número de orden..."
-                className="w-72 rounded-xl border border-white/10 bg-zinc-900/90 px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500"
+                className="w-full sm:w-72 rounded-xl border border-white/10 bg-zinc-900/90 px-3.5 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500"
               />
             </div>
 

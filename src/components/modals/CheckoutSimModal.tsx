@@ -335,16 +335,16 @@ satisfactoriamente en Luba Beats Marketplace a través de la pasarela Culqi.
         }}
       />
 
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-        <div className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-zinc-950 p-6 shadow-2xl">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+        <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-3xl border border-white/10 bg-zinc-950 p-4 sm:p-6 shadow-2xl">
           
           {/* Close Button */}
           <button
             onClick={handleClose}
-            className="absolute top-5 right-5 flex h-9 w-9 items-center justify-center rounded-full bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+            className="absolute top-4 right-4 sm:top-5 sm:right-5 z-10 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
             aria-label="Cerrar modal"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
 
           {!receipt ? (
@@ -437,7 +437,7 @@ satisfactoriamente en Luba Beats Marketplace a través de la pasarela Culqi.
                           setSelectedMethod(method.id as PaymentMethodType);
                           setErrorMessage(null);
                         }}
-                        className={`flex flex-col items-center justify-center rounded-2xl border p-3 transition-all ${
+                        className={`flex flex-col items-center justify-center rounded-2xl border p-2.5 sm:p-3 transition-all last:col-span-2 sm:last:col-span-1 ${
                           isSelected
                             ? 'border-purple-500 bg-purple-950/40 text-white shadow-lg shadow-purple-500/20'
                             : 'border-white/5 bg-zinc-900/60 text-zinc-400 hover:border-white/20 hover:text-white'
@@ -581,10 +581,10 @@ satisfactoriamente en Luba Beats Marketplace a través de la pasarela Culqi.
               </div>
 
               {/* Action CTA */}
-              <div className="mt-6 flex items-center justify-end gap-3 border-t border-white/10 pt-4">
+              <div className="mt-6 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 border-t border-white/10 pt-4">
                 <button
                   onClick={handleClose}
-                  className="rounded-xl px-4 py-2.5 text-xs font-semibold text-zinc-400 hover:text-white transition-colors"
+                  className="rounded-xl px-4 py-2.5 text-xs font-semibold text-zinc-400 hover:text-white transition-colors text-center"
                 >
                   Cancelar
                 </button>
@@ -593,7 +593,7 @@ satisfactoriamente en Luba Beats Marketplace a través de la pasarela Culqi.
                   <button
                     disabled={isProcessing}
                     onClick={handleOpenCulqiCheckout}
-                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-emerald-500 px-6 py-3 text-sm font-extrabold text-white shadow-xl shadow-purple-600/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+                    className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-emerald-500 px-6 py-3 text-sm font-extrabold text-white shadow-xl shadow-purple-600/30 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 text-center"
                   >
                     {isProcessing ? (
                       <>
@@ -611,7 +611,7 @@ satisfactoriamente en Luba Beats Marketplace a través de la pasarela Culqi.
                   <button
                     disabled={isProcessing}
                     onClick={() => processCheckoutWithToken(undefined, 'PagoEfectivo')}
-                    className="flex items-center gap-2 rounded-xl bg-amber-600 px-6 py-3 text-sm font-extrabold text-white shadow-xl hover:bg-amber-500 transition-all"
+                    className="flex items-center justify-center gap-2 rounded-xl bg-amber-600 px-6 py-3 text-sm font-extrabold text-white shadow-xl hover:bg-amber-500 transition-all text-center"
                   >
                     <span>Confirmar Orden CIP</span>
                     <ArrowRight className="h-4 w-4" />
@@ -620,7 +620,7 @@ satisfactoriamente en Luba Beats Marketplace a través de la pasarela Culqi.
                   <button
                     disabled={isProcessing}
                     onClick={() => processCheckoutWithToken()}
-                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 px-6 py-3 text-sm font-extrabold text-white shadow-xl shadow-purple-600/30 hover:from-purple-500 hover:to-cyan-400 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                    className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 px-6 py-3 text-sm font-extrabold text-white shadow-xl shadow-purple-600/30 hover:from-purple-500 hover:to-cyan-400 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 text-center"
                   >
                     {isProcessing ? (
                       <>

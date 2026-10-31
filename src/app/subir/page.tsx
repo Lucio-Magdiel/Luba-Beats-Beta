@@ -360,7 +360,7 @@ export default function SubirBeatPage() {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div
                       title="La venta y subida de beats está reservada exclusivamente para Productores"
                       className="flex items-center justify-center gap-2 rounded-2xl border border-white/5 bg-zinc-950/40 p-3.5 text-xs font-bold text-zinc-600 cursor-not-allowed opacity-50"
@@ -377,11 +377,11 @@ export default function SubirBeatPage() {
                 </div>
               ) : (
                 /* Vista para Productores y Super Admins: Pueden subir beats comerciales o canciones para streaming */
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   <button
                     type="button"
                     onClick={() => setType('beat')}
-                    className={`flex items-center justify-center gap-2.5 rounded-2xl border p-4 text-xs font-bold transition-all ${
+                    className={`flex items-center justify-center gap-2.5 rounded-2xl border p-3.5 sm:p-4 text-xs font-bold transition-all ${
                       isBeat
                         ? 'border-emerald-500/60 bg-emerald-950/40 text-white shadow-lg shadow-emerald-500/10'
                         : 'border-white/10 bg-zinc-900/60 text-zinc-400 hover:border-white/20 hover:text-white'
@@ -397,7 +397,7 @@ export default function SubirBeatPage() {
                       setType('musica');
                       setPrice(0);
                     }}
-                    className={`flex items-center justify-center gap-2.5 rounded-2xl border p-4 text-xs font-bold transition-all ${
+                    className={`flex items-center justify-center gap-2.5 rounded-2xl border p-3.5 sm:p-4 text-xs font-bold transition-all ${
                       !isBeat
                         ? 'border-purple-500/60 bg-purple-950/40 text-white shadow-lg shadow-purple-500/10'
                         : 'border-white/10 bg-zinc-900/60 text-zinc-400 hover:border-white/20 hover:text-white'

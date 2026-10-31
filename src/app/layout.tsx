@@ -37,7 +37,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-[#09090b] text-[#f4f4f5] antialiased selection:bg-purple-500 selection:text-white">
         <AuthProvider>
           <Navbar />
-          <main className="min-h-[calc(100vh-80px)]">{children}</main>
+          <main className="min-h-[calc(100vh-80px)] pb-24 sm:pb-20">{children}</main>
           <Footer />
 
           {/* Global Floating Components */}

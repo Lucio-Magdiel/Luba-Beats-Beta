@@ -182,7 +182,8 @@ export const Navbar: React.FC = () => {
               {/* Minimalist Profile Pill */}
               <button
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/80 hover:bg-zinc-800/80 hover:border-white/20 py-1.5 pl-1.5 pr-2.5 text-xs font-semibold text-zinc-200 transition-all cursor-pointer shadow-sm"
+                className="flex items-center gap-1.5 sm:gap-2 rounded-xl border border-white/10 bg-zinc-900/80 hover:bg-zinc-800/80 hover:border-white/20 p-1 sm:py-1.5 sm:pl-1.5 sm:pr-2.5 text-xs font-semibold text-zinc-200 transition-all cursor-pointer shadow-sm"
+                aria-label="Menú de usuario"
               >
                 {session.user.image ? (
                   <img
@@ -195,10 +196,10 @@ export const Navbar: React.FC = () => {
                     {(session.user.name || session.user.email || 'U')[0].toUpperCase()}
                   </div>
                 )}
-                <span className="max-w-[105px] truncate font-medium text-white text-xs">
+                <span className="hidden sm:inline-block max-w-[105px] truncate font-medium text-white text-xs">
                   {session.user.name || session.user.email?.split('@')[0]}
                 </span>
-                <ChevronDown className="h-3.5 w-3.5 text-zinc-400" />
+                <ChevronDown className="hidden sm:inline-block h-3.5 w-3.5 text-zinc-400" />
               </button>
 
               {/* User Dropdown Menu */}
@@ -365,7 +366,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="border-b border-white/10 bg-zinc-950 px-4 py-4 md:hidden animate-in slide-in-from-top-2 duration-200">
+        <div className="border-b border-white/10 bg-zinc-950 px-4 py-4 md:hidden animate-in slide-in-from-top-2 duration-200 max-h-[85vh] overflow-y-auto">
           <div className="flex flex-col gap-2">
             {/* Search in mobile drawer */}
             <div className="mb-2">

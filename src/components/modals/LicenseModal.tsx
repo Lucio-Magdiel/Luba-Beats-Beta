@@ -35,38 +35,38 @@ export const LicenseModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-3xl overflow-hidden rounded-3xl border border-white/10 bg-zinc-950 p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="relative w-full max-w-3xl max-h-[92vh] overflow-y-auto rounded-3xl border border-white/10 bg-zinc-950 p-4 sm:p-6 shadow-2xl">
         
         {/* Close Button */}
         <button
           onClick={closeLicenseModal}
-          className="absolute top-5 right-5 flex h-9 w-9 items-center justify-center rounded-full bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 z-10 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
           aria-label="Cerrar modal"
         >
-          <X className="h-5 w-5" />
+          <X className="h-4 w-4 sm:h-5 sm:w-5" />
         </button>
 
         {/* Header with Beat summary */}
-        <div className="flex items-center gap-4 border-b border-white/10 pb-5">
+        <div className="flex items-center gap-3 sm:gap-4 border-b border-white/10 pb-4 sm:pb-5 pr-8">
           <img
             src={selectedBeatForLicense.coverUrl}
             alt={selectedBeatForLicense.title}
-            className="h-16 w-16 rounded-2xl object-cover border border-white/10 shadow-md"
+            className="h-12 w-12 sm:h-16 sm:w-16 rounded-xl sm:rounded-2xl object-cover border border-white/10 shadow-md shrink-0"
           />
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs uppercase font-semibold text-purple-400">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] sm:text-xs uppercase font-semibold text-purple-400">
                 {hasLicenses ? 'Selecciona tu Licencia' : 'Información de Pista'}
               </span>
-              <span className="rounded bg-zinc-900 px-2 py-0.5 text-[10px] font-mono text-zinc-400 border border-white/5">
+              <span className="rounded bg-zinc-900 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-mono text-zinc-400 border border-white/5">
                 {selectedBeatForLicense.bpm} BPM • {selectedBeatForLicense.key}
               </span>
             </div>
-            <h2 className="text-2xl font-black text-white">
+            <h2 className="text-lg sm:text-2xl font-black text-white truncate">
               {selectedBeatForLicense.title}
             </h2>
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-zinc-400 truncate">
               Producido por <span className="text-zinc-200 font-semibold">{selectedBeatForLicense.producer.name}</span>
             </p>
           </div>
@@ -183,27 +183,27 @@ export const LicenseModal: React.FC = () => {
             </div>
 
             {/* Footer Actions */}
-            <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-white/10 pt-4">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-zinc-400">Total a pagar:</span>
+            <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-t border-white/10 pt-4">
+              <div className="flex items-center justify-between sm:justify-start gap-2">
+                <span className="text-xs text-zinc-400">Total:</span>
                 <span className="text-xl font-black text-white font-mono">
                   ${currentLicense.price} USD
                 </span>
-                <span className="text-sm font-semibold text-zinc-400">
+                <span className="text-xs sm:text-sm font-semibold text-zinc-400">
                   / S/. {currentLicense.pricePEN} PEN
                 </span>
               </div>
 
-              <div className="flex w-full sm:w-auto items-center gap-3">
+              <div className="flex flex-col sm:flex-row w-full sm:w-auto items-stretch sm:items-center gap-2 sm:gap-3">
                 <button
                   onClick={handleAddToCart}
-                  className="flex-1 sm:flex-none rounded-xl border border-white/10 bg-zinc-900 px-5 py-3 text-xs font-bold text-white hover:bg-zinc-800 transition-colors"
+                  className="rounded-xl border border-white/10 bg-zinc-900 px-5 py-3 text-xs font-bold text-white hover:bg-zinc-800 transition-colors"
                 >
                   Añadir al Carrito
                 </button>
                 <button
                   onClick={handleInstantBuy}
-                  className="flex-1 sm:flex-none rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 px-6 py-3 text-xs font-extrabold text-white shadow-lg shadow-purple-600/30 hover:from-purple-500 hover:to-cyan-400 transition-all hover:scale-105"
+                  className="rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 px-6 py-3 text-xs font-extrabold text-white shadow-lg shadow-purple-600/30 hover:from-purple-500 hover:to-cyan-400 transition-all hover:scale-[1.02] text-center"
                 >
                   Comprar Ahora (Simulador)
                 </button>

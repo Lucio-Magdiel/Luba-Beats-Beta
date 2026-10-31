@@ -112,7 +112,7 @@ export const BeatCard: React.FC<BeatCardProps> = ({ beat }) => {
               ? isCurrentPlaying
                 ? 'opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 pointer-events-none group-hover:pointer-events-auto'
                 : 'opacity-100 scale-100'
-              : 'opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100'
+              : 'opacity-85 sm:opacity-0 scale-90 sm:scale-75 group-hover:opacity-100 group-hover:scale-100'
           }`}
         >
           {isCurrentPlaying ? (

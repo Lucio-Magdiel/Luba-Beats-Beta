@@ -166,7 +166,7 @@ export default function HomePage() {
         </div>
 
         {/* Main Title */}
-        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.08]">
+        <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.1] sm:leading-[1.08]">
           El Ecosistema para Beatmakers <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-purple-400">
             y Artistas Musicales
@@ -174,19 +174,19 @@ export default function HomePage() {
         </h1>
 
         {/* Subtitle */}
-        <p className="mt-6 text-base sm:text-lg text-zinc-400 max-w-3xl mx-auto leading-relaxed">
+        <p className="mt-4 sm:mt-6 text-sm sm:text-base lg:text-lg text-zinc-400 max-w-3xl mx-auto leading-relaxed">
           Explora instrumentales para tu próximo hit con <strong className="text-zinc-200">BPM exacto</strong> y <strong className="text-zinc-200">tonalidad armónica</strong>, o descubre y reproduce canciones completas de artistas independientes sin interrupciones.
         </p>
 
         {/* Action Buttons */}
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
           <button
             onClick={() => {
               handleFilterChange({ ...filter, categoryTab: 'beat' });
               const elem = document.getElementById('catalogo');
               if (elem) elem.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="flex w-full sm:w-auto items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 px-8 py-4 text-sm font-black text-zinc-950 shadow-xl shadow-emerald-600/30 hover:from-emerald-500 hover:to-teal-400 transition-all hover:scale-105 active:scale-95"
+            className="flex w-full sm:w-auto items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 px-6 sm:px-8 py-3.5 sm:py-4 text-sm font-black text-zinc-950 shadow-xl shadow-emerald-600/30 hover:from-emerald-500 hover:to-teal-400 transition-all hover:scale-105 active:scale-95"
           >
             <Disc3 className="h-4 w-4 fill-zinc-950" />
             <span>Explorar Beats</span>
@@ -198,7 +198,7 @@ export default function HomePage() {
               const elem = document.getElementById('catalogo');
               if (elem) elem.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="flex w-full sm:w-auto items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 text-sm font-black text-white shadow-xl shadow-purple-600/30 hover:from-purple-500 hover:to-indigo-500 transition-all hover:scale-105 active:scale-95"
+            className="flex w-full sm:w-auto items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 px-6 sm:px-8 py-3.5 sm:py-4 text-sm font-black text-white shadow-xl shadow-purple-600/30 hover:from-purple-500 hover:to-indigo-500 transition-all hover:scale-105 active:scale-95"
           >
             <Music2 className="h-4 w-4" />
             <span>Escuchar Música Libre</span>
@@ -206,44 +206,44 @@ export default function HomePage() {
         </div>
 
         {/* Trust Badges */}
-        <div className="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-4 text-left border-y border-white/10 py-6 max-w-4xl mx-auto">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <Smartphone className="h-5 w-5" />
+        <div className="mt-10 sm:mt-14 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 text-left border-y border-white/10 py-5 sm:py-6 max-w-4xl mx-auto">
+          <div className="flex items-center gap-2 sm:gap-3 p-1">
+            <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <Smartphone className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
-            <div>
-              <h4 className="text-xs font-bold text-white">Yape & Plin</h4>
-              <p className="text-[11px] text-zinc-500">Cobros y pagos instantáneos</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-              <Sliders className="h-5 w-5" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-white">Filtro Armónico</h4>
-              <p className="text-[11px] text-zinc-500">BPM y Escalas Musicales</p>
+            <div className="min-w-0">
+              <h4 className="text-xs font-bold text-white truncate">Yape & Plin</h4>
+              <p className="text-[10px] sm:text-[11px] text-zinc-500 truncate">Cobros instantáneos</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
-              <ShieldCheck className="h-5 w-5" />
+          <div className="flex items-center gap-2 sm:gap-3 p-1">
+            <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+              <Sliders className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
-            <div>
-              <h4 className="text-xs font-bold text-white">Licencias Legales</h4>
-              <p className="text-[11px] text-zinc-500">Contratos PDF protegidos</p>
+            <div className="min-w-0">
+              <h4 className="text-xs font-bold text-white truncate">Filtro Armónico</h4>
+              <p className="text-[10px] sm:text-[11px] text-zinc-500 truncate">BPM y Escalas</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
-              <Zap className="h-5 w-5" />
+          <div className="flex items-center gap-2 sm:gap-3 p-1">
+            <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+              <ShieldCheck className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
-            <div>
-              <h4 className="text-xs font-bold text-white">WAV & Stems 24-bit</h4>
-              <p className="text-[11px] text-zinc-500">Audio en máxima fidelidad</p>
+            <div className="min-w-0">
+              <h4 className="text-xs font-bold text-white truncate">Licencias Legales</h4>
+              <p className="text-[10px] sm:text-[11px] text-zinc-500 truncate">Contratos PDF</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-3 p-1">
+            <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
+              <Zap className="h-4 w-4 sm:h-5 sm:w-5" />
+            </div>
+            <div className="min-w-0">
+              <h4 className="text-xs font-bold text-white truncate">WAV & Stems</h4>
+              <p className="text-[10px] sm:text-[11px] text-zinc-500 truncate">Audio 24-bit</p>
             </div>
           </div>
         </div>

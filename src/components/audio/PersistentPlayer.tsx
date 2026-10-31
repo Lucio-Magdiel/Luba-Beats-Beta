@@ -107,6 +107,11 @@ export const PersistentPlayer: React.FC = () => {
     seek(targetSeconds);
   };
 
+  const progressPercent =
+    (duration || currentBeat.duration) > 0
+      ? Math.min(100, (currentTime / (duration || currentBeat.duration)) * 100)
+      : 0;
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 p-2 sm:p-4 animate-in slide-in-from-bottom duration-300">
       {/* Hidden Audio Element with robust onEnded loop & next handler */}
@@ -139,8 +144,125 @@ export const PersistentPlayer: React.FC = () => {
       />
 
       {/* Player Container */}
-      <div className="mx-auto max-w-7xl rounded-2xl border border-white/10 bg-zinc-950/90 p-3 shadow-2xl backdrop-blur-2xl transition-all duration-300 hover:border-purple-500/30">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-6">
+      <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/95 p-2.5 sm:p-3 shadow-2xl backdrop-blur-2xl transition-all duration-300 hover:border-purple-500/30">
+        
+        {/* MOBILE SLIM SCRUBBER (Touch/Click to Seek) */}
+        <div
+          onClick={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            handleSeekPercent(percent);
+          }}
+          className="md:hidden relative -mx-2.5 -mt-2.5 mb-2 h-1.5 w-[calc(100%+20px)] cursor-pointer bg-white/10 overflow-hidden"
+          title="Toca para adelantar o retroceder"
+        >
+          <div
+            className="h-full bg-gradient-to-r from-purple-500 via-teal-400 to-cyan-400 transition-all duration-100"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+
+        {/* ======================================================== */}
+        {/* MOBILE COMPACT VIEW (< 768px)                            */}
+        {/* ======================================================== */}
+        <div className="flex md:hidden items-center justify-between gap-2">
+          {/* Left: Artwork + Title + Producer */}
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-white/10 shadow-md">
+              <img
+                src={currentBeat.coverUrl}
+                alt={currentBeat.title}
+                className={"h-full w-full object-cover transition-transform duration-500 " + (isPlaying ? "scale-105" : "scale-100")}
+              />
+              {isPlaying && (
+                <div className="absolute inset-0 bg-purple-600/20 mix-blend-overlay animate-pulse" />
+              )}
+            </div>
+
+            <div className="flex flex-col min-w-0 overflow-hidden">
+              <div className="flex items-center gap-1.5">
+                <span className="truncate text-xs font-bold text-white tracking-wide">
+                  {currentBeat.title}
+                </span>
+                <span className="shrink-0 rounded bg-purple-500/15 px-1 py-0.2 text-[9px] font-semibold text-purple-400 border border-purple-500/25">
+                  {currentBeat.genre}
+                </span>
+              </div>
+              <div className="flex items-center gap-1 text-[11px] text-zinc-400">
+                <span className="truncate">{currentBeat.producer.name}</span>
+                {currentBeat.producer.verified && (
+                  <CheckCircle2 className="h-3 w-3 text-cyan-400 shrink-0" />
+                )}
+                <span>•</span>
+                <span className="font-mono text-[10px] text-zinc-500 shrink-0">
+                  {formatTime(currentTime)} / {formatTime(duration || currentBeat.duration)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Controls & License */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Like */}
+            <button
+              onClick={() => toggleFavorite(currentBeat.id)}
+              className="p-1.5 text-zinc-400 hover:text-pink-500 transition-colors"
+              aria-label="Dar me gusta"
+            >
+              <Heart
+                className={"h-4 w-4 transition-transform " + (isLiked ? "fill-pink-500 text-pink-500 scale-110" : "")}
+              />
+            </button>
+
+            {/* Play/Pause */}
+            <button
+              onClick={togglePlay}
+              aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-tr from-purple-600 to-cyan-400 text-white shadow-md shadow-purple-600/30 active:scale-95 transition-transform"
+            >
+              {isPlaying ? (
+                <Pause className="h-4 w-4 fill-white" />
+              ) : (
+                <Play className="h-4 w-4 fill-white ml-0.5" />
+              )}
+            </button>
+
+            {/* Next Track */}
+            <button
+              onClick={nextBeat}
+              className="p-1.5 text-zinc-400 hover:text-white transition-colors"
+              aria-label="Siguiente"
+            >
+              <SkipForward className="h-4 w-4" />
+            </button>
+
+            {/* Compact License Action */}
+            {currentBeat.type === 'beat' && !currentBeat.isFree && currentBeat.priceFrom > 0 ? (
+              <button
+                onClick={() => openLicenseModal(currentBeat)}
+                className="flex items-center gap-1 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-2.5 py-1.5 text-xs font-bold text-white shadow-md shadow-purple-600/30 active:scale-95 transition-all"
+                aria-label="Comprar licencia"
+              >
+                <ShoppingCart className="h-3 w-3" />
+                <span className="font-mono text-[11px] font-black">${currentBeat.priceFrom}</span>
+              </button>
+            ) : (
+              <a
+                href={currentBeat.audioPreviewUrl}
+                download={currentBeat.title + ".mp3"}
+                className="flex items-center justify-center rounded-xl bg-purple-600/20 border border-purple-500/30 p-1.5 text-purple-300 hover:bg-purple-600 hover:text-white transition-all shadow-sm"
+                aria-label="Descargar preview"
+              >
+                <Download className="h-3.5 w-3.5" />
+              </a>
+            )}
+          </div>
+        </div>
+
+        {/* ======================================================== */}
+        {/* DESKTOP FULL VIEW (>= 768px)                             */}
+        {/* ======================================================== */}
+        <div className="hidden md:flex md:items-center justify-between gap-6">
           
           {/* Left: Beat info & Cover */}
           <div className="flex items-center gap-3.5 min-w-[220px] max-w-[320px]">

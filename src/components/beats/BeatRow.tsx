@@ -35,7 +35,7 @@ export const BeatRow: React.FC<BeatRowProps> = ({ beat, index }) => {
   return (
     <div
       onClick={() => playBeat(beat)}
-      className={`group flex items-center justify-between gap-4 rounded-xl border p-2.5 transition-all duration-200 cursor-pointer ${
+      className={`group flex items-center justify-between gap-2 sm:gap-4 rounded-xl border p-2 sm:p-2.5 transition-all duration-200 cursor-pointer ${
         isCurrent
           ? isBeat
             ? 'bg-emerald-950/20 border-emerald-500/40 shadow-md'
@@ -44,11 +44,11 @@ export const BeatRow: React.FC<BeatRowProps> = ({ beat, index }) => {
       }`}
     >
       {/* Index & Play Button & Cover */}
-      <div className="flex items-center gap-3 min-w-[240px] max-w-[360px] flex-1">
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
         {/* Play/Index */}
         <div className="relative flex h-8 w-8 shrink-0 items-center justify-center">
           <span
-            className={`font-mono text-xs font-semibold text-zinc-500 transition-opacity ${
+            className={`hidden sm:inline-block font-mono text-xs font-semibold text-zinc-500 transition-opacity ${
               isCurrent ? 'opacity-0' : 'group-hover:opacity-0'
             }`}
           >
@@ -62,7 +62,7 @@ export const BeatRow: React.FC<BeatRowProps> = ({ beat, index }) => {
             } ${
               isCurrent
                 ? 'opacity-100 scale-100 shadow-md'
-                : 'opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100'
+                : 'opacity-90 sm:opacity-0 scale-90 sm:scale-75 sm:group-hover:opacity-100 sm:group-hover:scale-100'
             }`}
           >
             {isCurrentPlaying ? (
@@ -74,7 +74,7 @@ export const BeatRow: React.FC<BeatRowProps> = ({ beat, index }) => {
         </div>
 
         {/* Thumbnail */}
-        <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-white/10">
+        <div className="relative h-10 w-10 sm:h-11 sm:w-11 shrink-0 overflow-hidden rounded-lg border border-white/10">
           <img
             src={beat.coverUrl}
             alt={beat.title}
@@ -83,12 +83,12 @@ export const BeatRow: React.FC<BeatRowProps> = ({ beat, index }) => {
         </div>
 
         {/* Title & Producer & Badge */}
-        <div className="flex flex-col overflow-hidden">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col min-w-0 overflow-hidden">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <Link
               href={`/beat/${beat.slug || beat.id}`}
               onClick={(e) => e.stopPropagation()}
-              className={`truncate text-sm font-bold tracking-tight transition-colors hover:underline ${
+              className={`truncate text-xs sm:text-sm font-bold tracking-tight transition-colors hover:underline ${
                 isCurrent
                   ? isBeat
                     ? 'text-emerald-400'
@@ -99,7 +99,7 @@ export const BeatRow: React.FC<BeatRowProps> = ({ beat, index }) => {
               {beat.title}
             </Link>
             <span
-              className={`text-[9px] font-black uppercase px-1.5 py-0.2 rounded border ${
+              className={`hidden xs:inline-block text-[8px] sm:text-[9px] font-black uppercase px-1.5 py-0.2 rounded border ${
                 isBeat
                   ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40'
                   : 'bg-purple-950/80 text-purple-300 border-purple-500/40'
@@ -109,7 +109,7 @@ export const BeatRow: React.FC<BeatRowProps> = ({ beat, index }) => {
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-xs text-zinc-400">
+          <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-zinc-400">
             <Link
               href={`/perfil/${beat.producer.handle || beat.producer.name}`}
               onClick={(e) => e.stopPropagation()}
@@ -149,7 +149,7 @@ export const BeatRow: React.FC<BeatRowProps> = ({ beat, index }) => {
       </div>
 
       {/* Right: Like, Price & Action Button */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -162,18 +162,18 @@ export const BeatRow: React.FC<BeatRowProps> = ({ beat, index }) => {
         </button>
 
         {/* Price Tag or GRATIS */}
-        <div className="flex flex-col items-end min-w-[70px]">
+        <div className="flex flex-col items-end min-w-[50px] sm:min-w-[70px]">
           {isBeat ? (
             <>
-              <span className="font-mono text-sm font-black text-emerald-400">
+              <span className="font-mono text-xs sm:text-sm font-black text-emerald-400">
                 ${beat.priceFrom.toFixed(2)}
               </span>
-              <span className="text-[10px] text-zinc-400">
+              <span className="text-[9px] sm:text-[10px] text-zinc-400">
                 S/. {beat.priceFromPEN}
               </span>
             </>
           ) : (
-            <span className="font-mono text-xs font-black text-purple-400 tracking-wider">
+            <span className="font-mono text-[11px] sm:text-xs font-black text-purple-400 tracking-wider">
               GRATIS
             </span>
           )}
@@ -186,10 +186,10 @@ export const BeatRow: React.FC<BeatRowProps> = ({ beat, index }) => {
               e.stopPropagation();
               openLicenseModal(beat);
             }}
-            className="flex items-center gap-1.5 rounded-xl bg-emerald-600/20 border border-emerald-500/30 px-3 py-1.5 text-xs font-bold text-emerald-300 transition-all hover:bg-emerald-600 hover:text-white"
+            className="flex items-center gap-1.5 rounded-xl bg-emerald-600/20 border border-emerald-500/30 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-emerald-300 transition-all hover:bg-emerald-600 hover:text-white"
           >
             <ShoppingCart className="h-3.5 w-3.5" />
-            <span className="hidden lg:inline">Licencia</span>
+            <span className="hidden sm:inline">Licencia</span>
           </button>
         ) : (
           <a
@@ -198,10 +198,10 @@ export const BeatRow: React.FC<BeatRowProps> = ({ beat, index }) => {
             target="_blank"
             rel="noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1.5 rounded-xl bg-purple-600/20 border border-purple-500/30 px-3 py-1.5 text-xs font-bold text-purple-300 transition-all hover:bg-purple-600 hover:text-white"
+            className="flex items-center gap-1.5 rounded-xl bg-purple-600/20 border border-purple-500/30 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-purple-300 transition-all hover:bg-purple-600 hover:text-white"
           >
             <Download className="h-3.5 w-3.5" />
-            <span className="hidden lg:inline">Descargar</span>
+            <span className="hidden sm:inline">Descargar</span>
           </a>
         )}
       </div>

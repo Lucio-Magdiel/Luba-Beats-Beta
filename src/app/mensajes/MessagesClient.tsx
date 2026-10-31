@@ -281,11 +281,11 @@ export function MessagesClient({
           </button>
         </div>
 
-        {/* Chat Main Window (2 Columns) */}
-        <div className="grid grid-cols-1 md:grid-cols-12 rounded-3xl border border-white/10 bg-zinc-900/80 backdrop-blur-2xl shadow-2xl shadow-purple-950/20 overflow-hidden min-h-[620px]">
+        {/* Chat Main Window (2 Columns on Desktop, Single View with Switch on Mobile) */}
+        <div className="grid grid-cols-1 md:grid-cols-12 rounded-3xl border border-white/10 bg-zinc-900/80 backdrop-blur-2xl shadow-2xl shadow-purple-950/20 overflow-hidden min-h-[580px] md:min-h-[620px]">
           
           {/* Left Column: Conversations List */}
-          <div className="md:col-span-4 border-r border-white/10 flex flex-col bg-zinc-950/60">
+          <div className={`${activeUser ? 'hidden md:flex' : 'flex'} md:col-span-4 border-r border-white/10 flex-col bg-zinc-950/60 h-[580px] md:h-[620px]`}>
             {/* Search Input */}
             <div className="p-4 border-b border-white/5">
               <div className="relative">
@@ -393,27 +393,37 @@ export function MessagesClient({
           </div>
 
           {/* Right Column: Active Chat Area */}
-          <div className="md:col-span-8 flex flex-col justify-between h-[620px] bg-zinc-950/40">
+          <div className={`${activeUser ? 'flex' : 'hidden md:flex'} md:col-span-8 flex-col justify-between h-[580px] md:h-[620px] bg-zinc-950/40`}>
             {activeUser ? (
               <>
                 {/* Active Chat Header */}
                 <div className="p-4 border-b border-white/10 flex items-center justify-between bg-zinc-900/70">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                    {/* Mobile Back Button to conversation list */}
+                    <button
+                      type="button"
+                      onClick={() => setActiveUser(null)}
+                      className="md:hidden p-1.5 rounded-lg bg-zinc-800 text-zinc-300 hover:text-white shrink-0"
+                      aria-label="Volver a chats"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                    </button>
+
                     <img
                       src={activeUser.foto_perfil || defaultAvatar}
                       alt={activeUser.nombre_usuario}
-                      className="h-10 w-10 rounded-xl object-cover ring-1 ring-purple-500/40"
+                      className="h-10 w-10 rounded-xl object-cover ring-1 ring-purple-500/40 shrink-0"
                     />
-                    <div>
+                    <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-white text-sm">
+                        <span className="font-bold text-white text-sm truncate">
                           {activeUser.nombre_usuario}
                         </span>
                         {activeUser.verificado_google && (
-                          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                          <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
                         )}
                       </div>
-                      <span className="text-[10px] text-zinc-400 font-mono capitalize">
+                      <span className="text-[10px] text-zinc-400 font-mono capitalize truncate block">
                         {activeUser.tipo === 'productor' ? (
                           <span className="text-emerald-400 flex items-center gap-1">
                             <Disc3 className="h-3 w-3" /> Productor Oficial

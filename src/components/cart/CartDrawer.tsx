@@ -26,10 +26,10 @@ export const CartDrawer: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative flex h-full w-full max-w-md flex-col justify-between border-l border-white/10 bg-zinc-950 p-6 shadow-2xl">
+      <div className="relative flex h-full w-full max-w-md flex-col justify-between border-l border-white/10 bg-zinc-950 p-4 sm:p-6 shadow-2xl">
         
         {/* Header */}
-        <div>
+        <div className="flex flex-col flex-1 min-h-0">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <div className="flex items-center gap-2">
               <ShoppingBag className="h-5 w-5 text-purple-400" />
@@ -48,7 +48,7 @@ export const CartDrawer: React.FC = () => {
           </div>
 
           {/* Cart items list */}
-          <div className="mt-4 max-h-[50vh] space-y-3 overflow-y-auto pr-1">
+          <div className="mt-4 flex-1 space-y-3 overflow-y-auto pr-1">
             {items.length === 0 ? (
               <div className="py-12 text-center text-zinc-500 space-y-2">
                 <ShoppingBag className="mx-auto h-12 w-12 text-zinc-700" />

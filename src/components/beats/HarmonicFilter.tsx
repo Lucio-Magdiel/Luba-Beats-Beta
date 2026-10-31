@@ -40,7 +40,7 @@ export const HarmonicFilter: React.FC<HarmonicFilterProps> = ({
           {/* Tab: Todo */}
           <button
             onClick={() => onFilterChange({ ...filter, categoryTab: 'todo' })}
-            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 rounded-xl px-5 py-2 text-xs font-extrabold transition-all duration-300 ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-5 py-2 text-xs font-extrabold transition-all duration-300 ${
               filter.categoryTab === 'todo'
                 ? 'bg-emerald-500 text-zinc-950 shadow-md shadow-emerald-500/30'
                 : 'text-zinc-400 hover:text-white'
@@ -53,7 +53,7 @@ export const HarmonicFilter: React.FC<HarmonicFilterProps> = ({
           {/* Tab: Beats */}
           <button
             onClick={() => onFilterChange({ ...filter, categoryTab: 'beat' })}
-            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 rounded-xl px-5 py-2 text-xs font-extrabold transition-all duration-300 ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-5 py-2 text-xs font-extrabold transition-all duration-300 ${
               filter.categoryTab === 'beat'
                 ? 'bg-emerald-500 text-zinc-950 shadow-md shadow-emerald-500/30'
                 : 'text-zinc-400 hover:text-emerald-400'
@@ -66,7 +66,7 @@ export const HarmonicFilter: React.FC<HarmonicFilterProps> = ({
           {/* Tab: Música */}
           <button
             onClick={() => onFilterChange({ ...filter, categoryTab: 'musica' })}
-            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 rounded-xl px-5 py-2 text-xs font-extrabold transition-all duration-300 ${
+            className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl px-3 sm:px-5 py-2 text-xs font-extrabold transition-all duration-300 ${
               filter.categoryTab === 'musica'
                 ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
                 : 'text-zinc-400 hover:text-purple-400'
@@ -78,7 +78,7 @@ export const HarmonicFilter: React.FC<HarmonicFilterProps> = ({
         </div>
 
         {/* View Mode Toggle and Sort */}
-        <div className="flex items-center justify-end gap-2 w-full sm:w-auto">
+        <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
           {/* Sort Dropdown */}
           <select
             value={filter.sortBy}
@@ -88,7 +88,7 @@ export const HarmonicFilter: React.FC<HarmonicFilterProps> = ({
                 sortBy: e.target.value as FilterState['sortBy']
               })
             }
-            className="rounded-xl border border-white/10 bg-zinc-900/90 px-3 py-2 text-xs font-medium text-zinc-300 outline-none transition-colors hover:border-white/20 focus:border-purple-500"
+            className="flex-1 sm:flex-none rounded-xl border border-white/10 bg-zinc-900/90 px-3 py-2 text-xs font-medium text-zinc-300 outline-none transition-colors hover:border-white/20 focus:border-purple-500"
           >
             <option value="trending">🔥 En Tendencia</option>
             <option value="popular">🎧 Más Reproducidos</option>
