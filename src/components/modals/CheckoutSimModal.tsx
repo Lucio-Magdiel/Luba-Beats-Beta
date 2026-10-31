@@ -487,9 +487,9 @@ satisfactoriamente en Luba Beats Marketplace a través de la pasarela Culqi.
                         Yape Perú
                       </span>
                       <h4 className="text-sm font-bold text-white">Escanea el código QR o yapea a:</h4>
-                      <p className="font-mono text-base font-bold text-purple-300">982 451 902 (Luba Beats SAC)</p>
+                      <p className="font-mono text-base font-bold text-purple-300">994 235 517 (Lucio Magdiel Baca Sapa)</p>
                       <p className="text-[11px] text-zinc-400">
-                        También puedes pagar mediante Yape dentro del Checkout oficial de Culqi.
+                        También puedes pagar mediante Yape con código de aprobación dentro del Checkout de Culqi.
                       </p>
                     </div>
                   </div>
@@ -505,9 +505,9 @@ satisfactoriamente en Luba Beats Marketplace a través de la pasarela Culqi.
                         Plin Interbancario
                       </span>
                       <h4 className="text-sm font-bold text-white">Plin a número afiliado:</h4>
-                      <p className="font-mono text-base font-bold text-cyan-300">982 451 902</p>
+                      <p className="font-mono text-base font-bold text-cyan-300">994 235 517 (Lucio Magdiel Baca Sapa)</p>
                       <p className="text-[11px] text-zinc-400">
-                        Compatible con BBVA, Scotiabank, Interbank y BanBif.
+                        Compatible con BCP, BBVA, Scotiabank, Interbank y BanBif.
                       </p>
                     </div>
                   </div>
