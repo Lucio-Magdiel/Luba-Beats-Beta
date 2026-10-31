@@ -17,8 +17,6 @@ import {
   Heart,
   ShoppingCart,
   Download,
-  Volume2,
-  VolumeX,
   CheckCircle2,
   Music,
   Sparkles,
@@ -36,16 +34,12 @@ export const QueuePlaylistModal: React.FC = () => {
     isPlaying,
     currentTime,
     duration,
-    volume,
-    isMuted,
     queue,
     repeatMode,
     isQueueOpen,
     setIsQueueOpen,
     togglePlay,
     seek,
-    setVolume,
-    toggleMute,
     nextBeat,
     prevBeat,
     toggleRepeat,
@@ -88,10 +82,6 @@ export const QueuePlaylistModal: React.FC = () => {
     const targetSeconds = percent * (duration || currentBeat.duration);
     seek(targetSeconds);
   };
-
-  const currentIndex = queue.findIndex(
-    (b) => b.id === currentBeat.id || b.slug === currentBeat.slug
-  );
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/90 backdrop-blur-2xl animate-in fade-in duration-200">
@@ -552,3 +542,4 @@ export const QueuePlaylistModal: React.FC = () => {
     </div>
   );
 };
+
