@@ -12,6 +12,7 @@ export interface DeveloperProfileData {
   githubUrl: string;
   repoUrl: string;
   emailContact?: string;
+  platformUsername?: string;
   highlights: Array<{
     title: string;
     desc: string;
@@ -32,6 +33,7 @@ export const DEFAULT_DEVELOPER_PROFILE: DeveloperProfileData = {
   githubUrl: 'https://github.com/Lucio-Magdiel',
   repoUrl: 'https://github.com/Lucio-Magdiel/Luba-Beats-Beta',
   emailContact: 'magdiel@lubabeats.com',
+  platformUsername: 'Magdiel',
   highlights: [
     {
       title: 'Motor de Audio Persistente & Streaming',
@@ -118,6 +120,7 @@ export async function PUT(req: NextRequest) {
       githubUrl: String(body.githubUrl || DEFAULT_DEVELOPER_PROFILE.githubUrl).trim(),
       repoUrl: String(body.repoUrl || DEFAULT_DEVELOPER_PROFILE.repoUrl).trim(),
       emailContact: String(body.emailContact || DEFAULT_DEVELOPER_PROFILE.emailContact || '').trim(),
+      platformUsername: String(body.platformUsername || DEFAULT_DEVELOPER_PROFILE.platformUsername || 'Magdiel').trim(),
       highlights: Array.isArray(body.highlights) && body.highlights.length > 0 ? body.highlights : DEFAULT_DEVELOPER_PROFILE.highlights,
       skills: Array.isArray(body.skills) && body.skills.length > 0 ? body.skills : DEFAULT_DEVELOPER_PROFILE.skills,
     };

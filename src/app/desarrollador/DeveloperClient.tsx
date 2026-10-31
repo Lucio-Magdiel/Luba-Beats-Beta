@@ -19,6 +19,9 @@ import {
   Save,
   Loader2,
   Sparkles,
+  Crown,
+  MessageSquare,
+  UserPlus,
 } from 'lucide-react';
 import type { DeveloperProfileData } from '@/app/api/admin/developer/route';
 
@@ -53,6 +56,8 @@ export function DeveloperClient({ initialProfile, isSuperAdmin }: Props) {
   const [formData, setFormData] = useState<DeveloperProfileData>(initialProfile);
   const [saving, setSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const platformUsername = profile.platformUsername || 'Magdiel';
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -143,10 +148,14 @@ export function DeveloperClient({ initialProfile, isSuperAdmin }: Props) {
           <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-400" />
 
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8 text-center sm:text-left">
-            {/* Avatar / Uchiha Sigil Symbol */}
-            <div className="relative group">
+            {/* Avatar / Uchiha Sigil Symbol (Linked to Super Admin Profile) */}
+            <Link
+              href={`/perfil/${platformUsername}`}
+              title={`Ver perfil oficial de @${platformUsername} en Luba Beats`}
+              className="relative group block cursor-pointer transition-transform hover:scale-105 active:scale-95 shrink-0"
+            >
               <div className="relative h-28 w-28 sm:h-32 sm:w-32 rounded-3xl p-1 bg-gradient-to-tr from-purple-600 via-pink-600 to-cyan-400 shadow-xl shadow-purple-900/40">
-                <div className="h-full w-full rounded-[22px] bg-zinc-950 flex flex-col items-center justify-center relative overflow-hidden">
+                <div className="h-full w-full rounded-[22px] bg-zinc-950 flex flex-col items-center justify-center relative overflow-hidden group-hover:bg-zinc-900 transition-colors">
                   <Flame className="h-12 w-12 text-pink-500 group-hover:scale-110 transition-transform duration-300" />
                   <span className="text-[10px] font-black uppercase tracking-widest text-zinc-300 mt-1">
                     UCHIHA
@@ -156,16 +165,30 @@ export function DeveloperClient({ initialProfile, isSuperAdmin }: Props) {
               <div className="absolute -bottom-1 -right-1 rounded-full bg-zinc-950 p-1">
                 <CheckCircle2 className="h-6 w-6 text-emerald-400 fill-zinc-950" />
               </div>
-            </div>
+              <div className="absolute -top-2.5 -left-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-zinc-950 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider flex items-center gap-1 shadow-md">
+                <Crown className="h-3 w-3 fill-zinc-950" />
+                <span>Super Admin</span>
+              </div>
+            </Link>
 
             {/* Profile Info */}
             <div className="flex-1 space-y-3">
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
-                <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white">
-                  {profile.name}
-                </h1>
+                <Link
+                  href={`/perfil/${platformUsername}`}
+                  className="group inline-flex items-center gap-2 hover:opacity-90 transition-opacity"
+                  title={`Ir al perfil de @${platformUsername}`}
+                >
+                  <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white group-hover:text-purple-300 transition-colors">
+                    {profile.name}
+                  </h1>
+                </Link>
                 <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-3 py-0.5 text-xs font-bold text-emerald-300">
                   Lead Developer
+                </span>
+                <span className="rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-0.5 text-xs font-bold text-amber-300 flex items-center gap-1">
+                  <Crown className="h-3 w-3" />
+                  <span>@{platformUsername}</span>
                 </span>
               </div>
 
@@ -177,7 +200,7 @@ export function DeveloperClient({ initialProfile, isSuperAdmin }: Props) {
                 {profile.bio}
               </p>
 
-              {/* Action Buttons */}
+              {/* Action Buttons: Redes y Repositorio */}
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 pt-2">
                 {profile.githubUrl && (
                   <a
@@ -204,6 +227,52 @@ export function DeveloperClient({ initialProfile, isSuperAdmin }: Props) {
                   </a>
                 )}
               </div>
+            </div>
+          </div>
+
+          {/* Tarjeta de Conexión Directa a la Plataforma Luba Beats */}
+          <div className="mt-8 rounded-2xl border border-purple-500/25 bg-gradient-to-r from-purple-950/40 via-zinc-900/70 to-cyan-950/30 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 backdrop-blur-md">
+            <div className="flex items-center gap-3.5 text-center sm:text-left">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-purple-500/20 border border-purple-500/30">
+                <Crown className="h-5 w-5 text-amber-400" />
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                  <span className="text-xs font-bold text-white">Perfil en la Plataforma:</span>
+                  <Link
+                    href={`/perfil/${platformUsername}`}
+                    className="font-mono text-xs font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 hover:underline"
+                  >
+                    @{platformUsername}
+                  </Link>
+                  <span className="rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[9px] font-black uppercase px-2 py-0.5">
+                    Super Admin
+                  </span>
+                </div>
+                <p className="text-[11px] text-zinc-400 mt-0.5">
+                  Conéctate con el creador: puedes seguir su perfil, escuchar sus pistas o enviarle un mensaje directo.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-2 shrink-0 w-full sm:w-auto">
+              <Link
+                href={`/perfil/${platformUsername}`}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 px-4 py-2 text-xs font-bold text-white shadow-md active:scale-95 transition-all"
+                title={`Ver perfil y seguir a @${platformUsername}`}
+              >
+                <UserPlus className="h-3.5 w-3.5" />
+                <span>Ver & Seguir</span>
+              </Link>
+
+              <Link
+                href={`/mensajes?con=${platformUsername}`}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-cyan-500/30 bg-cyan-950/40 hover:bg-cyan-900/40 px-4 py-2 text-xs font-bold text-cyan-300 hover:border-cyan-400 transition-all shadow-md active:scale-95"
+                title={`Enviar mensaje interno a @${platformUsername}`}
+              >
+                <MessageSquare className="h-3.5 w-3.5 text-cyan-400" />
+                <span>Enviar Mensaje</span>
+              </Link>
             </div>
           </div>
         </div>
@@ -308,6 +377,31 @@ export function DeveloperClient({ initialProfile, isSuperAdmin }: Props) {
             </div>
 
             <form onSubmit={handleSave} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-zinc-300 uppercase mb-1">
+                  Usuario en Luba Beats (@handle vinculado)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2 text-xs font-mono text-zinc-500">@</span>
+                  <input
+                    type="text"
+                    value={formData.platformUsername || ''}
+                    placeholder="Magdiel"
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        platformUsername: e.target.value.replace(/[^a-zA-Z0-9_.-]/g, ''),
+                      })
+                    }
+                    className="w-full rounded-xl border border-white/10 bg-zinc-900 pl-7 pr-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500 font-mono"
+                    required
+                  />
+                </div>
+                <span className="text-[10px] text-zinc-500 mt-1 block">
+                  Los enlaces para ver perfil, seguir y enviar mensajes directos se dirigirán a este usuario.
+                </span>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-zinc-300 uppercase mb-1">

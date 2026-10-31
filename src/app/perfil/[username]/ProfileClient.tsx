@@ -29,6 +29,7 @@ import {
   Image as ImageIcon,
   AlertTriangle,
   Info,
+  Crown,
 } from 'lucide-react';
 import { UserProfileData } from '@/lib/getProfile';
 import { BeatCard } from '@/components/beats/BeatCard';
@@ -278,6 +279,7 @@ export function ProfileClient({ profile }: Props) {
     (session?.user as any)?.nombre_usuario === currentUsername
   );
 
+  const isSuperAdmin = profile.tipo === 'super_admin';
   const isProductor = profile.tipo === 'productor';
   const isArtista = profile.tipo === 'artista';
   const sessionUserRole = (session?.user as any)?.role;
@@ -373,7 +375,9 @@ export function ProfileClient({ profile }: Props) {
               <div className="relative group/avatar">
                 <div
                   className={`h-28 w-28 sm:h-36 sm:w-36 rounded-3xl overflow-hidden p-1 shadow-2xl relative ${
-                    isProductor
+                    isSuperAdmin
+                      ? 'bg-gradient-to-tr from-amber-400 via-rose-500 to-purple-600 shadow-amber-500/20'
+                      : isProductor
                       ? 'bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-400'
                       : isArtista
                       ? 'bg-gradient-to-tr from-purple-500 via-pink-500 to-indigo-500'
@@ -415,15 +419,23 @@ export function ProfileClient({ profile }: Props) {
                   {/* Role Badge */}
                   <span
                     className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${
-                      isProductor
+                      isSuperAdmin
+                        ? 'bg-gradient-to-r from-amber-500/20 via-pink-500/20 to-purple-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
+                        : isProductor
                         ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                         : isArtista
                         ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
                         : 'bg-zinc-800 text-zinc-300 border border-zinc-700'
                     }`}
                   >
-                    {isProductor ? <Disc3 className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
-                    {profile.tipo}
+                    {isSuperAdmin ? (
+                      <Crown className="h-3.5 w-3.5 text-amber-400" />
+                    ) : isProductor ? (
+                      <Disc3 className="h-3.5 w-3.5" />
+                    ) : (
+                      <Mic className="h-3.5 w-3.5" />
+                    )}
+                    {isSuperAdmin ? 'Super Admin / Lead Dev' : profile.tipo}
                   </span>
                 </div>
 
@@ -493,6 +505,17 @@ export function ProfileClient({ profile }: Props) {
                   <MessageSquare className="h-4 w-4 text-cyan-400" />
                   <span>Mensaje</span>
                 </button>
+              )}
+
+              {/* Lead Developer Portfolio link if Super Admin */}
+              {isSuperAdmin && (
+                <Link
+                  href="/desarrollador"
+                  className="flex items-center gap-2 rounded-xl border border-purple-500/40 bg-gradient-to-r from-purple-950/60 to-pink-950/40 hover:from-purple-900/70 hover:to-pink-900/50 px-4 py-2.5 text-xs font-bold text-purple-200 hover:text-white hover:border-purple-400 transition-all shadow-md group"
+                >
+                  <Crown className="h-4 w-4 text-amber-400 group-hover:rotate-12 transition-transform" />
+                  <span>Portafolio Lead Dev</span>
+                </Link>
               )}
 
               <button
