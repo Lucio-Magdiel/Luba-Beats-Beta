@@ -1,7 +1,10 @@
-﻿import NextAuth from "next-auth";
+import NextAuth from "next-auth";
 import { authConfig } from "@/auth.config";
 
-export default NextAuth(authConfig).auth;
+const authHandler = NextAuth(authConfig).auth;
+
+export default authHandler;
+export const proxy = authHandler;
 
 export const config = {
   matcher: [
