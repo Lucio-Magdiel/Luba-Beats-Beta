@@ -10,6 +10,17 @@ cloudinary.config({
 export { cloudinary };
 
 /**
+ * Genera una firma segura de subida directa a Cloudinary (Client Direct Upload)
+ */
+export function signUploadParams(paramsToSign: Record<string, string | number>): string {
+  const secret = process.env.CLOUDINARY_API_SECRET;
+  if (!secret) {
+    throw new Error('CLOUDINARY_API_SECRET no está configurado');
+  }
+  return cloudinary.utils.api_sign_request(paramsToSign, secret);
+}
+
+/**
  * Subir un buffer directamente a Cloudinary usando upload_stream
  */
 export function uploadToCloudinary(buffer: Buffer, options: UploadApiOptions): Promise<UploadApiResponse> {

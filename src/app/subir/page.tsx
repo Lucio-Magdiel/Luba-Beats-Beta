@@ -24,6 +24,83 @@ import { ItemType, MusicalKey, MusicGenre, MusicMood, Beat } from '@/types/beat'
 import { MOCK_GENRES, MOCK_KEYS } from '@/data/mockBeats';
 import { useAudioStore } from '@/store/useAudioStore';
 
+async function uploadDirectToCloudinary(
+  file: File,
+  folder: string,
+  resourceType: 'video' | 'auto',
+  onProgress?: (percent: number) => void
+): Promise<{ secure_url: string; duration?: number }> {
+  const signRes = await fetch('/api/cloudinary/sign', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ folder, resourceType }),
+  });
+
+  const rawSignText = await signRes.text();
+  let signData: any;
+  try {
+    signData = JSON.parse(rawSignText);
+  } catch {
+    throw new Error('Error al conectar con el servidor de autenticación para subida.');
+  }
+
+  if (!signRes.ok) {
+    throw new Error(signData.error || 'No autorizado para subir archivos.');
+  }
+
+  const { signature, timestamp, apiKey, cloudName, folder: targetFolder } = signData;
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('api_key', apiKey);
+  formData.append('timestamp', String(timestamp));
+  formData.append('signature', signature);
+  formData.append('folder', targetFolder);
+
+  const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
+
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', uploadUrl);
+
+    if (xhr.upload && onProgress) {
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percent = Math.round((event.loaded / event.total) * 100);
+          onProgress(percent);
+        }
+      };
+    }
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          resolve({
+            secure_url: data.secure_url,
+            duration: data.duration,
+          });
+        } catch {
+          reject(new Error('Respuesta inválida al subir archivo a Cloudinary.'));
+        }
+      } else {
+        try {
+          const errData = JSON.parse(xhr.responseText);
+          reject(new Error(errData.error?.message || `Error al subir a Cloudinary (${xhr.status}).`));
+        } catch {
+          reject(new Error(`Error al procesar archivo en Cloudinary (${xhr.status}).`));
+        }
+      }
+    };
+
+    xhr.onerror = () => {
+      reject(new Error('Error de conexión con el servicio de almacenamiento en la nube.'));
+    };
+
+    xhr.send(formData);
+  });
+}
+
 export default function SubirBeatPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -67,6 +144,10 @@ export default function SubirBeatPage() {
 
   // Upload status
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{
+    percentage: number;
+    statusText: string;
+  } | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [uploadedBeat, setUploadedBeat] = useState<Beat | null>(null);
 
@@ -126,7 +207,7 @@ export default function SubirBeatPage() {
     setErrorMessage(null);
   };
 
-  // Submit Handler
+  // Submit Handler con subida directa a Cloudinary (sin límite de 4.5MB en Vercel)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -149,30 +230,85 @@ export default function SubirBeatPage() {
     setErrorMessage(null);
 
     try {
-      const formData = new FormData();
-      formData.append('audio', audioFile);
-      formData.append('cover', coverFile);
-      formData.append('title', title.trim());
-      formData.append('type', type);
-      formData.append('genre', genre);
-      formData.append('bpm', bpm.toString());
-      formData.append('key', key);
-      formData.append('mood', mood);
-      formData.append('price', price.toString());
-      formData.append('tags', tags);
+      // 1. Subida directa del archivo de audio a Cloudinary
+      const audioSizeMB = (audioFile.size / (1024 * 1024)).toFixed(1);
+      setUploadProgress({
+        percentage: 0,
+        statusText: `Subiendo audio (${audioSizeMB} MB): 0%`,
+      });
+
+      const audioFolder = type === 'musica' ? 'chojin/musica' : 'chojin/beats';
+      const audioResult = await uploadDirectToCloudinary(
+        audioFile,
+        audioFolder,
+        'video',
+        (pct) => {
+          setUploadProgress({
+            percentage: pct,
+            statusText: `Subiendo audio (${audioSizeMB} MB): ${pct}%`,
+          });
+        }
+      );
+
+      // 2. Subida directa de la portada o video visual a Cloudinary
+      const coverSizeMB = (coverFile.size / (1024 * 1024)).toFixed(1);
+      setUploadProgress({
+        percentage: 0,
+        statusText: `Subiendo portada (${coverSizeMB} MB): 0%`,
+      });
+
+      const coverResult = await uploadDirectToCloudinary(
+        coverFile,
+        'chojin/visuales',
+        'auto',
+        (pct) => {
+          setUploadProgress({
+            percentage: pct,
+            statusText: `Subiendo portada (${coverSizeMB} MB): ${pct}%`,
+          });
+        }
+      );
+
+      // 3. Registrar metadata en MySQL a través de /api/beats/upload
+      setUploadProgress({
+        percentage: 100,
+        statusText: 'Registrando pista en el catálogo de Luba Beats...',
+      });
 
       const response = await fetch('/api/beats/upload', {
         method: 'POST',
-        body: formData
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: title.trim(),
+          type,
+          genre,
+          bpm,
+          key,
+          mood,
+          price,
+          tags,
+          audioUrl: audioResult.secure_url,
+          audioDuration: audioResult.duration,
+          coverUrl: coverResult.secure_url,
+        }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Error al procesar la subida de los archivos');
+      const rawText = await response.text();
+      let data: any;
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        if (response.status === 413 || rawText.includes('Request Entity Too Large')) {
+          throw new Error('El tamaño de los archivos excede el límite permitido por el servidor.');
+        }
+        throw new Error(`Error en el servidor (${response.status}): ${rawText.slice(0, 120)}`);
       }
 
-      // Add to client state so it appears in catalog immediately
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al procesar el registro de la pista');
+      }
+
+      // Añadir al catálogo en estado cliente y mostrar pantalla de éxito
       addUploadedBeat(data.beat);
       setUploadedBeat(data.beat);
     } catch (err: unknown) {
@@ -182,6 +318,7 @@ export default function SubirBeatPage() {
       );
     } finally {
       setIsUploading(false);
+      setUploadProgress(null);
     }
   };
 
@@ -193,6 +330,7 @@ export default function SubirBeatPage() {
     setCoverPreviewUrl(null);
     setUploadedBeat(null);
     setErrorMessage(null);
+    setUploadProgress(null);
   };
 
   return (
@@ -651,6 +789,27 @@ export default function SubirBeatPage() {
 
             </div>
 
+            {/* Real-time Upload Progress Bar */}
+            {uploadProgress && (
+              <div className="rounded-2xl border border-white/10 bg-zinc-900/90 p-4 space-y-2 mb-4 animate-in fade-in duration-200">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-white flex items-center gap-2">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-purple-400" />
+                    {uploadProgress.statusText}
+                  </span>
+                  <span className="font-mono font-bold text-purple-300">
+                    {uploadProgress.percentage}%
+                  </span>
+                </div>
+                <div className="h-2.5 w-full overflow-hidden rounded-full bg-zinc-800">
+                  <div
+                    className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-emerald-400 transition-all duration-200 ease-out"
+                    style={{ width: `${Math.max(5, uploadProgress.percentage)}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Submit Button */}
             <div className="pt-4 border-t border-white/10">
               <button
@@ -658,7 +817,7 @@ export default function SubirBeatPage() {
                 disabled={isUploading}
                 className={`flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-sm font-black transition-all shadow-xl ${
                   isUploading
-                    ? 'bg-zinc-800 text-zinc-400 cursor-not-allowed'
+                    ? 'bg-zinc-800 text-zinc-300 cursor-not-allowed'
                     : isBeat && !isArtist
                     ? 'bg-gradient-to-r from-emerald-500 to-teal-400 text-zinc-950 shadow-emerald-500/30 hover:scale-[1.01] active:scale-[0.99]'
                     : 'bg-gradient-to-r from-purple-600 to-indigo-500 text-white shadow-purple-600/30 hover:scale-[1.01] active:scale-[0.99]'
@@ -666,8 +825,8 @@ export default function SubirBeatPage() {
               >
                 {isUploading ? (
                   <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    <span>Subiendo y procesando audio en Luba Beats...</span>
+                    <Loader2 className="h-5 w-5 animate-spin text-purple-400" />
+                    <span>{uploadProgress?.statusText || 'Subiendo y procesando audio en Luba Beats...'}</span>
                   </>
                 ) : (
                   <>

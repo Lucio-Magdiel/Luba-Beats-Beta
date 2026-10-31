@@ -58,17 +58,130 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const formData = await req.formData();
+    const contentType = req.headers.get('content-type') || '';
+    const isJson = contentType.includes('application/json');
 
-    const audioFile = formData.get('audio') as File | null;
-    const coverFile = formData.get('cover') as File | null;
-    const title = (formData.get('title') as string) || 'Sin Título';
-    let type = ((formData.get('type') as string) || 'beat') as ItemType;
-    const genre = ((formData.get('genre') as string) || 'Trap') as MusicGenre;
-    const bpm = parseInt((formData.get('bpm') as string) || '140', 10);
-    const key = ((formData.get('key') as string) || 'C Minor') as MusicalKey;
-    const mood = ((formData.get('mood') as string) || 'Energético') as MusicMood;
-    let price = parseFloat((formData.get('price') as string) || '25');
+    let title = 'Sin Título';
+    let type: ItemType = 'beat';
+    let genre: MusicGenre = 'Trap';
+    let bpm = 140;
+    let key: MusicalKey = 'C Minor';
+    let mood: MusicMood = 'Energético';
+    let price = 25;
+    let tags: string[] = [];
+    let audioUrl = '';
+    let coverUrl = '';
+    let durationSeconds = 180;
+
+    if (isJson) {
+      const body = await req.json();
+      title = (body.title as string) || 'Sin Título';
+      type = ((body.type as string) || 'beat') as ItemType;
+      genre = ((body.genre as string) || 'Trap') as MusicGenre;
+      bpm = parseInt(String(body.bpm || '140'), 10);
+      key = ((body.key as string) || 'C Minor') as MusicalKey;
+      mood = ((body.mood as string) || 'Energético') as MusicMood;
+      price = parseFloat(String(body.price || '25'));
+      audioUrl = (body.audioUrl as string) || '';
+      coverUrl = (body.coverUrl as string) || '';
+      durationSeconds = Math.round(Number(body.audioDuration) || 180);
+
+      const tagsRaw = (body.tags as string) || '';
+      tags = Array.isArray(body.tags)
+        ? body.tags
+        : tagsRaw
+        ? tagsRaw.split(',').map((t: string) => t.trim()).filter(Boolean)
+        : [genre, `${bpm} BPM`, type];
+
+      if (!audioUrl) {
+        return NextResponse.json(
+          { error: 'La URL del archivo de audio es obligatoria.' },
+          { status: 400 }
+        );
+      }
+
+      if (!coverUrl) {
+        return NextResponse.json(
+          { error: 'La URL de la portada o visual es obligatoria.' },
+          { status: 400 }
+        );
+      }
+    } else {
+      const formData = await req.formData();
+
+      const audioFile = formData.get('audio') as File | null;
+      const coverFile = formData.get('cover') as File | null;
+      title = (formData.get('title') as string) || 'Sin Título';
+      type = ((formData.get('type') as string) || 'beat') as ItemType;
+      genre = ((formData.get('genre') as string) || 'Trap') as MusicGenre;
+      bpm = parseInt((formData.get('bpm') as string) || '140', 10);
+      key = ((formData.get('key') as string) || 'C Minor') as MusicalKey;
+      mood = ((formData.get('mood') as string) || 'Energético') as MusicMood;
+      price = parseFloat((formData.get('price') as string) || '25');
+
+      const tagsRaw = (formData.get('tags') as string) || '';
+      tags = tagsRaw
+        ? tagsRaw.split(',').map((t) => t.trim()).filter(Boolean)
+        : [genre, `${bpm} BPM`, type];
+
+      if (!audioFile) {
+        return NextResponse.json(
+          { error: 'El archivo de audio es obligatorio (.mp3 o .wav)' },
+          { status: 400 }
+        );
+      }
+
+      const MAX_AUDIO_SIZE = 50 * 1024 * 1024;
+      if (audioFile.size > MAX_AUDIO_SIZE) {
+        return NextResponse.json(
+          { error: 'El archivo de audio supera el límite máximo permitido de 50MB' },
+          { status: 400 }
+        );
+      }
+
+      if (!coverFile) {
+        return NextResponse.json(
+          { error: 'El archivo de imagen o video para la portada es obligatorio' },
+          { status: 400 }
+        );
+      }
+
+      const MAX_COVER_SIZE = 15 * 1024 * 1024;
+      if (coverFile.size > MAX_COVER_SIZE) {
+        return NextResponse.json(
+          { error: 'La portada o video visual supera el límite máximo permitido de 15MB' },
+          { status: 400 }
+        );
+      }
+
+      const audioBuffer = Buffer.from(await audioFile.arrayBuffer());
+      const coverBuffer = Buffer.from(await coverFile.arrayBuffer());
+
+      const slugTemp = title
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_-]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      const timestampTemp = Date.now();
+
+      const audioFolder = type === 'musica' ? 'chojin/musica' : 'chojin/beats';
+      const audioUploadResult = await uploadToCloudinary(audioBuffer, {
+        folder: audioFolder,
+        public_id: `${type}_${timestampTemp}_${slugTemp}`,
+        resource_type: 'video',
+      });
+
+      const coverUploadResult = await uploadToCloudinary(coverBuffer, {
+        folder: 'chojin/visuales',
+        public_id: `visual_${timestampTemp}_${slugTemp}`,
+        resource_type: 'auto',
+      });
+
+      audioUrl = audioUploadResult.secure_url;
+      coverUrl = coverUploadResult.secure_url;
+      durationSeconds = Math.round(audioUploadResult.duration || 180);
+    }
 
     // RESTRICCIONES ESTRICTAS POR ROL:
     // 1. Artistas: Solo pueden subir canciones libres para streaming (tipo: 'musica'), sin precio ni venta comercial.
@@ -90,47 +203,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const tagsRaw = (formData.get('tags') as string) || '';
-    const tags = tagsRaw
-      ? tagsRaw.split(',').map((t) => t.trim()).filter(Boolean)
-      : [genre, `${bpm} BPM`, type];
-
-    if (!audioFile) {
-      return NextResponse.json(
-        { error: 'El archivo de audio es obligatorio (.mp3 o .wav)' },
-        { status: 400 }
-      );
-    }
-
-    // Validar tamaño máximo de audio (50MB)
-    const MAX_AUDIO_SIZE = 50 * 1024 * 1024;
-    if (audioFile.size > MAX_AUDIO_SIZE) {
-      return NextResponse.json(
-        { error: 'El archivo de audio supera el límite máximo permitido de 50MB' },
-        { status: 400 }
-      );
-    }
-
-    if (!coverFile) {
-      return NextResponse.json(
-        { error: 'El archivo de imagen o video para la portada es obligatorio' },
-        { status: 400 }
-      );
-    }
-
-    // Validar tamaño máximo de portada (15MB)
-    const MAX_COVER_SIZE = 15 * 1024 * 1024;
-    if (coverFile.size > MAX_COVER_SIZE) {
-      return NextResponse.json(
-        { error: 'La portada o video visual supera el límite máximo permitido de 15MB' },
-        { status: 400 }
-      );
-    }
-
-    // Convert Files to Buffers
-    const audioBuffer = Buffer.from(await audioFile.arrayBuffer());
-    const coverBuffer = Buffer.from(await coverFile.arrayBuffer());
-
     // Generate clean slug
     const slug = title
       .toLowerCase()
@@ -140,23 +212,6 @@ export async function POST(req: NextRequest) {
       .replace(/^-+|-+$/g, '');
 
     const timestamp = Date.now();
-
-    // 1. Upload Audio to Cloudinary
-    const audioFolder = type === 'musica' ? 'chojin/musica' : 'chojin/beats';
-    const audioUploadResult = await uploadToCloudinary(audioBuffer, {
-      folder: audioFolder,
-      public_id: `${type}_${timestamp}_${slug}`,
-      resource_type: 'video'
-    });
-
-    // 2. Upload Cover/Visual to Cloudinary
-    const coverUploadResult = await uploadToCloudinary(coverBuffer, {
-      folder: 'chojin/visuales',
-      public_id: `visual_${timestamp}_${slug}`,
-      resource_type: 'auto'
-    });
-
-    const durationSeconds = Math.round(audioUploadResult.duration || 180);
     const m = Math.floor(durationSeconds / 60);
     const s = Math.floor(durationSeconds % 60);
     const durationFormatted = `${m}:${s < 10 ? '0' : ''}${s}`;
@@ -173,9 +228,9 @@ export async function POST(req: NextRequest) {
           bpm,
           mood,
           precio: price,
-          archivo_preview: audioUploadResult.secure_url,
-          archivo_full: audioUploadResult.secure_url,
-          archivo_visual: coverUploadResult.secure_url,
+          archivo_preview: audioUrl,
+          archivo_full: audioUrl,
+          archivo_visual: coverUrl,
           estado: 'publico',
           duracion: durationFormatted,
           nota_musical: key
@@ -208,8 +263,8 @@ export async function POST(req: NextRequest) {
       tags,
       duration: durationSeconds,
       durationFormatted,
-      audioPreviewUrl: audioUploadResult.secure_url,
-      coverUrl: coverUploadResult.secure_url,
+      audioPreviewUrl: audioUrl,
+      coverUrl: coverUrl,
       waveform: generateWaveform(Math.random() * 10),
       priceFrom: price,
       priceFromPEN: Math.round(price * 3.75),

@@ -100,8 +100,8 @@ export function ProfileClient({ profile }: Props) {
         setEditError('Por favor selecciona una imagen válida (JPG, PNG o WebP).');
         return;
       }
-      if (file.size > 10 * 1024 * 1024) {
-        setEditError('La foto de perfil no debe superar los 10MB.');
+      if (file.size > 4 * 1024 * 1024) {
+        setEditError('La foto de perfil no debe superar los 4MB para subida rápida.');
         return;
       }
       setAvatarFile(file);
@@ -117,8 +117,8 @@ export function ProfileClient({ profile }: Props) {
         setEditError('Por favor selecciona una imagen válida (JPG, PNG o WebP).');
         return;
       }
-      if (file.size > 15 * 1024 * 1024) {
-        setEditError('La imagen de portada / banner no debe superar los 15MB.');
+      if (file.size > 4 * 1024 * 1024) {
+        setEditError('La imagen de portada / banner no debe superar los 4MB para subida rápida.');
         return;
       }
       setBannerFile(file);
@@ -165,7 +165,19 @@ export function ProfileClient({ profile }: Props) {
         body: fd,
       });
 
-      const data = await res.json();
+      const rawText = await res.text();
+      let data: any;
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        if (res.status === 413 || rawText.includes('Request Entity Too Large')) {
+          setEditError('Las imágenes seleccionadas superan el límite permitido (4MB). Por favor elige una imagen más ligera.');
+          return;
+        }
+        setEditError(`Error en el servidor (${res.status}): ${rawText.slice(0, 100)}`);
+        return;
+      }
+
       if (!res.ok) {
         setEditError(data.error || 'Ocurrió un error al actualizar el perfil.');
         return;
