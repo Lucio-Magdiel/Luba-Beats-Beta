@@ -35,35 +35,31 @@ export const BeatRow: React.FC<BeatRowProps> = ({ beat, index }) => {
   return (
     <div
       onClick={() => playBeat(beat)}
-      className={`group flex items-center justify-between gap-2 sm:gap-4 rounded-xl border p-2 sm:p-2.5 transition-all duration-200 cursor-pointer ${
-        isCurrent
+      className={`group flex items-center justify-between gap-2 sm:gap-4 rounded-xl border p-2 sm:p-2.5 transition-all duration-200 cursor-pointer ${isCurrent
           ? isBeat
             ? 'bg-emerald-950/20 border-emerald-500/40 shadow-md'
             : 'bg-purple-950/20 border-purple-500/40 shadow-md'
           : 'bg-zinc-950/40 hover:bg-zinc-900/60 hover:border-white/15 border-white/5'
-      }`}
+        }`}
     >
       {/* Index & Play Button & Cover */}
       <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
         {/* Play/Index */}
         <div className="relative flex h-8 w-8 shrink-0 items-center justify-center">
           <span
-            className={`hidden sm:inline-block font-mono text-xs font-semibold text-zinc-500 transition-opacity ${
-              isCurrent ? 'opacity-0' : 'group-hover:opacity-0'
-            }`}
+            className={`hidden sm:inline-block font-mono text-xs font-semibold text-zinc-500 transition-opacity ${isCurrent ? 'opacity-0' : 'group-hover:opacity-0'
+              }`}
           >
             {index + 1}
           </span>
           <button
             onClick={handlePlayToggle}
             aria-label={isCurrentPlaying ? 'Pausar' : 'Reproducir'}
-            className={`absolute inset-0 flex items-center justify-center rounded-lg text-white transition-all ${
-              isBeat ? 'bg-emerald-600' : 'bg-purple-600'
-            } ${
-              isCurrent
+            className={`absolute inset-0 flex items-center justify-center rounded-lg text-white transition-all ${isBeat ? 'bg-emerald-600' : 'bg-purple-600'
+              } ${isCurrent
                 ? 'opacity-100 scale-100 shadow-md'
                 : 'opacity-90 sm:opacity-0 scale-90 sm:scale-75 sm:group-hover:opacity-100 sm:group-hover:scale-100'
-            }`}
+              }`}
           >
             {isCurrentPlaying ? (
               <Pause className="h-3.5 w-3.5 fill-white" />
@@ -88,22 +84,20 @@ export const BeatRow: React.FC<BeatRowProps> = ({ beat, index }) => {
             <Link
               href={`/beat/${beat.slug || beat.id}`}
               onClick={(e) => e.stopPropagation()}
-              className={`truncate text-xs sm:text-sm font-bold tracking-tight transition-colors hover:underline ${
-                isCurrent
+              className={`truncate text-xs sm:text-sm font-bold tracking-tight transition-colors hover:underline ${isCurrent
                   ? isBeat
                     ? 'text-emerald-400'
                     : 'text-purple-400'
                   : 'text-white'
-              }`}
+                }`}
             >
               {beat.title}
             </Link>
             <span
-              className={`hidden xs:inline-block text-[8px] sm:text-[9px] font-black uppercase px-1.5 py-0.2 rounded border ${
-                isBeat
+              className={`hidden xs:inline-block text-[8px] sm:text-[9px] font-black uppercase px-1.5 py-0.2 rounded border ${isBeat
                   ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40'
                   : 'bg-purple-950/80 text-purple-300 border-purple-500/40'
-              }`}
+                }`}
             >
               {isBeat ? 'BEAT' : 'MÚSICA'}
             </span>
@@ -129,11 +123,10 @@ export const BeatRow: React.FC<BeatRowProps> = ({ beat, index }) => {
       {/* Musical Specs: Genre, BPM, Key */}
       <div className="hidden sm:flex items-center gap-3 text-xs">
         <span
-          className={`rounded-md px-2 py-0.5 font-semibold border ${
-            isBeat
+          className={`rounded-md px-2 py-0.5 font-semibold border ${isBeat
               ? 'bg-zinc-900 text-emerald-300 border-emerald-500/20'
               : 'bg-zinc-900 text-purple-300 border-purple-500/20'
-          }`}
+            }`}
         >
           {beat.genre}
         </span>

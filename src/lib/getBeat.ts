@@ -1,5 +1,4 @@
 import { prisma } from '@/lib/prisma';
-import { MOCK_BEATS } from '@/data/mockBeats';
 import { Beat, ItemType, MusicalKey, MusicGenre, MusicMood } from '@/types/beat';
 
 // Utility to generate aesthetic waveform array
@@ -138,10 +137,5 @@ export async function getBeatBySlugOrId(slugOrId: string): Promise<Beat | null> 
     console.error('Error fetching beat by slug from DB:', err);
   }
 
-  // 2. Fallback a MOCK_BEATS si no se encontró en la BD
-  const foundMock = MOCK_BEATS.find(
-    (b) => b.slug === slugOrId || b.id === slugOrId || b.title.toLowerCase().replace(/\s+/g, '-') === slugOrId
-  );
-
-  return foundMock || null;
+  return null;
 }

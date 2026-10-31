@@ -49,14 +49,20 @@ export async function POST(req: NextRequest) {
     }
 
     // Validar tipo de usuario
+    const totalUsers = await prisma.usuarios.count();
     const validRoles: usuarios_tipo[] = [
       usuarios_tipo.comprador,
       usuarios_tipo.productor,
       usuarios_tipo.artista,
+      usuarios_tipo.super_admin,
     ];
-    const userRole: usuarios_tipo = validRoles.includes(tipo)
-      ? tipo
-      : usuarios_tipo.comprador;
+    // El primer usuario registrado en la plataforma obtiene privilegios de super_admin
+    const userRole: usuarios_tipo =
+      totalUsers === 0
+        ? usuarios_tipo.super_admin
+        : validRoles.includes(tipo)
+        ? tipo
+        : usuarios_tipo.comprador;
 
     // Verificar si ya existe usuario o correo
     const existingUser = await prisma.usuarios.findFirst({

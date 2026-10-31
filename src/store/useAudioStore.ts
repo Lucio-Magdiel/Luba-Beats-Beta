@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { Beat } from '@/types/beat';
-import { MOCK_BEATS } from '@/data/mockBeats';
 
 // Utility to build an intelligent autoplay queue (Spotify / YouTube Music style)
 export const buildAutoplayQueue = (current: Beat, pool: Beat[]): Beat[] => {
@@ -83,7 +82,7 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
   seekTarget: null,
   activeCategory: 'todo',
   uploadedBeats: [],
-  catalog: MOCK_BEATS,
+  catalog: [],
 
   initCatalog: async () => {
     try {
@@ -91,17 +90,11 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
       const res = await fetch('/api/beats');
       if (!res.ok) return;
       const data = await res.json();
-      if (data.success && Array.isArray(data.beats) && data.beats.length > 0) {
-        // Merge DB beats with MOCK_BEATS without duplicate IDs
-        const existingIds = new Set(data.beats.map((b: Beat) => b.id));
-        const combined = [
-          ...data.beats,
-          ...MOCK_BEATS.filter((b) => !existingIds.has(b.id))
-        ];
-        set({ catalog: combined });
+      if (data.success && Array.isArray(data.beats)) {
+        set({ catalog: data.beats });
       }
     } catch (err) {
-      console.warn('Could not fetch catalog from API, using defaults:', err);
+      console.warn('Could not fetch catalog from API:', err);
     }
   },
 

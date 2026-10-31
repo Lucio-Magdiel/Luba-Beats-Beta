@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import Link from 'next/link';
 import {
   Play,
   Sparkles,
@@ -12,14 +13,33 @@ import {
   Disc3,
   Music2,
   ArrowRight,
-  Flame
+  Flame,
+  Users,
+  CheckCircle2,
+  UploadCloud
 } from 'lucide-react';
-import { MOCK_BEATS } from '@/data/mockBeats';
 import { Beat, FilterState } from '@/types/beat';
 import { HarmonicFilter } from '@/components/beats/HarmonicFilter';
 import { BeatCard } from '@/components/beats/BeatCard';
 import { BeatRow } from '@/components/beats/BeatRow';
 import { useAudioStore } from '@/store/useAudioStore';
+
+interface CreatorItem {
+  id: number;
+  nombre_usuario: string;
+  tipo: string;
+  foto_perfil: string | null;
+  banner: string | null;
+  bio: string | null;
+  verificado_google: boolean;
+  fecha_registro: string | null;
+  beatsCount: number;
+  followersCount: number;
+  isNew: boolean;
+  hasRecentUpload: boolean;
+  latestBeatTitle: string | null;
+  latestUploadDate: string | null;
+}
 
 export default function HomePage() {
   const { playBeat, activeCategory, setActiveCategory, uploadedBeats } = useAudioStore();
@@ -36,17 +56,32 @@ export default function HomePage() {
   });
 
   const [dbBeats, setDbBeats] = useState<Beat[]>([]);
+  const [creators, setCreators] = useState<CreatorItem[]>([]);
+  const [loadingCreators, setLoadingCreators] = useState(true);
 
-  // Fetch real beats from MySQL on mount
+  // Fetch real beats from Supabase PostgreSQL on mount
   useEffect(() => {
     fetch('/api/beats')
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && data.beats && data.beats.length > 0) {
+        if (data.success && Array.isArray(data.beats)) {
           setDbBeats(data.beats);
         }
       })
-      .catch((err) => console.warn('Could not load DB beats, using mock fallback', err));
+      .catch((err) => console.warn('Could not load DB beats:', err));
+  }, []);
+
+  // Fetch dynamic creators from API
+  useEffect(() => {
+    fetch('/api/creators')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.creators)) {
+          setCreators(data.creators);
+        }
+      })
+      .catch((err) => console.warn('Could not load creators:', err))
+      .finally(() => setLoadingCreators(false));
   }, []);
 
   // Auto-scroll al catálogo si se llega con hash #catalogo desde otra vista
@@ -78,10 +113,9 @@ export default function HomePage() {
   );
 
   const allBeats = useMemo(() => {
-    const sourceBeats = dbBeats.length > 0 ? dbBeats : MOCK_BEATS;
     const ids = new Set<string>();
     const result: Beat[] = [];
-    for (const b of [...uploadedBeats, ...sourceBeats]) {
+    for (const b of [...uploadedBeats, ...dbBeats]) {
       if (!ids.has(b.id)) {
         ids.add(b.id);
         result.push(b);
@@ -291,12 +325,21 @@ export default function HomePage() {
         {/* CATALOG OUTPUT */}
         <div className="mt-10">
           {filteredBeats.length === 0 ? (
-            <div className="rounded-3xl border border-white/5 bg-zinc-950/60 p-16 text-center text-zinc-400">
+            <div className="rounded-3xl border border-white/5 bg-zinc-950/60 p-12 sm:p-16 text-center text-zinc-400">
               <Music className="mx-auto h-12 w-12 text-zinc-700 mb-3" />
-              <h3 className="text-lg font-bold text-white">No se encontraron resultados</h3>
-              <p className="text-xs text-zinc-500 mt-1">
-                Prueba ajustando los filtros de BPM, cambiando de género o seleccionando otra pestaña.
+              <h3 className="text-lg font-bold text-white">No hay pistas en el catálogo aún</h3>
+              <p className="text-xs text-zinc-500 mt-1 max-w-md mx-auto">
+                El catálogo está listo para recibir nuevos lanzamientos. Sé el primer creador en publicar tu música o instrumental.
               </p>
+              <div className="mt-6 flex items-center justify-center gap-3">
+                <Link
+                  href="/subir"
+                  className="flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2.5 text-xs font-bold text-zinc-950 shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 transition-all hover:scale-105 active:scale-95"
+                >
+                  <UploadCloud className="h-4 w-4" />
+                  <span>Subir Mi Primera Pista</span>
+                </Link>
+              </div>
             </div>
           ) : viewMode === 'list' ? (
             // LIST VIEW: Unified list with category badges
@@ -383,87 +426,126 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* TOP PRODUCERS SECTION */}
+      {/* TOP PRODUCERS & DYNAMIC CREATORS SECTION */}
       <section id="productores" className="px-4 py-16 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-white/5">
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <div className="text-center max-w-2xl mx-auto mb-10">
           <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
             Comunidad de Creadores
           </span>
-          <h2 className="text-3xl font-black text-white mt-1">
-            Productores & Artistas en Tendencia
+          <h2 className="text-2xl sm:text-3xl font-black text-white mt-1">
+            Productores & Artistas Destacados
           </h2>
           <p className="text-xs text-zinc-400 mt-2">
-            Creadores certificados de Perú y Latinoamérica subiendo material periódicamente.
+            Descubre a los creadores de la comunidad, nuevos miembros de los últimos 2 días y perfiles con lanzamientos recientes.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {/* Chojin */}
-          <div className="group rounded-2xl border border-white/10 bg-zinc-950/60 p-5 text-center transition-all hover:-translate-y-1 hover:border-emerald-500/40 hover:shadow-xl hover:shadow-emerald-500/10">
-            <div className="relative mx-auto h-20 w-20 overflow-hidden rounded-full border-2 border-emerald-500/40 p-1 shadow-lg">
-              <img
-                src="https://res.cloudinary.com/dacq9spfd/image/upload/v1761544297/chojin/profiles/profile_2.png"
-                alt="chojin"
-                className="h-full w-full rounded-full object-cover"
-              />
-            </div>
-            <h3 className="mt-4 text-base font-bold text-white flex items-center justify-center gap-1.5">
-              <span>chojin</span>
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            </h3>
-            <p className="text-xs text-emerald-400 font-semibold mt-0.5">Productor Certificado</p>
-            <p className="text-[11px] text-zinc-500 mt-1">42 Beats • Lima, Perú</p>
+        {loadingCreators ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {[1, 2, 3, 4].map((n) => (
+              <div key={n} className="h-52 rounded-2xl border border-white/5 bg-zinc-900/40 animate-pulse" />
+            ))}
           </div>
+        ) : creators.length === 0 ? (
+          <div className="rounded-3xl border border-white/5 bg-zinc-950/60 p-10 text-center max-w-md mx-auto space-y-3">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+              <Users className="h-7 w-7" />
+            </div>
+            <h3 className="text-base font-bold text-white">Sé el primer creador en unirte</h3>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Crea tu cuenta de productor o artista para aparecer aquí y dar a conocer tu música a toda la comunidad.
+            </p>
+            <div className="pt-2">
+              <Link
+                href="/registro"
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-purple-600/30 hover:from-purple-500 hover:to-indigo-500 transition-all hover:scale-105 active:scale-95"
+              >
+                <span>Crear Cuenta de Creador</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {creators.map((c) => {
+              const isProd = c.tipo === 'productor';
+              const isArt = c.tipo === 'artista';
+              const avatar =
+                c.foto_perfil ||
+                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&auto=format&fit=crop&q=80';
 
-          {/* Artista Demo */}
-          <div className="group rounded-2xl border border-white/10 bg-zinc-950/60 p-5 text-center transition-all hover:-translate-y-1 hover:border-purple-500/40 hover:shadow-xl hover:shadow-purple-500/10">
-            <div className="relative mx-auto h-20 w-20 overflow-hidden rounded-full border-2 border-purple-500/40 p-1 shadow-lg">
-              <img
-                src="https://res.cloudinary.com/dacq9spfd/image/upload/v1761515064/chojin/profiles/profile_4.jpg"
-                alt="artista_demo"
-                className="h-full w-full rounded-full object-cover"
-              />
-            </div>
-            <h3 className="mt-4 text-base font-bold text-white flex items-center justify-center gap-1.5">
-              <span>artista_demo</span>
-              <span className="h-2 w-2 rounded-full bg-purple-400 animate-pulse" />
-            </h3>
-            <p className="text-xs text-purple-400 font-semibold mt-0.5">Artista / Vocalista</p>
-            <p className="text-[11px] text-zinc-500 mt-1">14 Lanzamientos • Perú</p>
-          </div>
+              return (
+                <Link
+                  key={c.id}
+                  href={`/perfil/${encodeURIComponent(c.nombre_usuario)}`}
+                  className={`group relative rounded-2xl border bg-zinc-950/70 p-5 text-center transition-all duration-300 hover:-translate-y-1 block shadow-lg ${
+                    isProd
+                      ? 'border-emerald-500/20 hover:border-emerald-400/70 hover:shadow-emerald-950/30'
+                      : 'border-purple-500/20 hover:border-purple-400/70 hover:shadow-purple-950/30'
+                  }`}
+                >
+                  {/* Status Badge (New Creator <= 2 days or Recent Upload) */}
+                  {c.isNew ? (
+                    <span className="absolute top-3 right-3 rounded-full bg-emerald-500/20 border border-emerald-500/40 px-2 py-0.5 text-[9px] font-black text-emerald-300 shadow-sm animate-pulse">
+                      ✨ Nuevo Creador
+                    </span>
+                  ) : c.hasRecentUpload ? (
+                    <span className="absolute top-3 right-3 rounded-full bg-cyan-500/20 border border-cyan-500/40 px-2 py-0.5 text-[9px] font-black text-cyan-300 shadow-sm">
+                      🔥 Nueva Pista
+                    </span>
+                  ) : null}
 
-          {/* Chojin Studio */}
-          <div className="group rounded-2xl border border-white/10 bg-zinc-950/60 p-5 text-center transition-all hover:-translate-y-1 hover:border-emerald-500/40 hover:shadow-xl hover:shadow-emerald-500/10">
-            <div className="relative mx-auto h-20 w-20 overflow-hidden rounded-full border-2 border-emerald-500/40 p-1 shadow-lg">
-              <img
-                src="https://res.cloudinary.com/dacq9spfd/image/upload/v1761705060/chojin/profiles/profile_9.jpg"
-                alt="Chojin Studio"
-                className="h-full w-full rounded-full object-cover"
-              />
-            </div>
-            <h3 className="mt-4 text-base font-bold text-white flex items-center justify-center gap-1.5">
-              <span>Chojin Studio</span>
-            </h3>
-            <p className="text-xs text-emerald-400 font-semibold mt-0.5">Beatmaker Pro</p>
-            <p className="text-[11px] text-zinc-500 mt-1">Reggaeton & Trap • Perú</p>
-          </div>
+                  {/* Avatar with Glow Ring */}
+                  <div className="relative mx-auto h-20 w-20 overflow-hidden rounded-full p-1 shadow-lg">
+                    <div
+                      className={`h-full w-full rounded-full p-[2px] transition-transform duration-300 group-hover:scale-105 ${
+                        isProd
+                          ? 'bg-gradient-to-tr from-emerald-500 to-cyan-400'
+                          : 'bg-gradient-to-tr from-purple-500 to-pink-500'
+                      }`}
+                    >
+                      <img
+                        src={avatar}
+                        alt={c.nombre_usuario}
+                        className="h-full w-full rounded-full object-cover bg-zinc-900"
+                      />
+                    </div>
+                  </div>
 
-          {/* Dopamina Project */}
-          <div className="group rounded-2xl border border-white/10 bg-zinc-950/60 p-5 text-center transition-all hover:-translate-y-1 hover:border-purple-500/40 hover:shadow-xl hover:shadow-purple-500/10">
-            <div className="relative mx-auto h-20 w-20 overflow-hidden rounded-full border-2 border-purple-500/40 p-1 shadow-lg">
-              <img
-                src="https://res.cloudinary.com/dacq9spfd/image/upload/v1761710807/chojin/profiles/profile_10.jpg"
-                alt="Dopamina Sound"
-                className="h-full w-full rounded-full object-cover"
-              />
-            </div>
-            <h3 className="mt-4 text-base font-bold text-white flex items-center justify-center gap-1.5">
-              <span>Dopamina Sound</span>
-            </h3>
-            <p className="text-xs text-purple-400 font-semibold mt-0.5">Pop & R&B</p>
-            <p className="text-[11px] text-zinc-500 mt-1">Demos Vocales • Perú</p>
+                  {/* Username with verification */}
+                  <h3 className="mt-4 text-base font-bold text-white flex items-center justify-center gap-1.5 group-hover:text-emerald-400 transition-colors">
+                    <span className="truncate">{c.nombre_usuario}</span>
+                    {c.verificado_google && (
+                      <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                    )}
+                  </h3>
+
+                  {/* Role */}
+                  <p
+                    className={`text-xs font-semibold mt-0.5 ${
+                      isProd ? 'text-emerald-400' : isArt ? 'text-purple-400' : 'text-zinc-400'
+                    }`}
+                  >
+                    {isProd ? 'Productor Musical' : isArt ? 'Artista Musical' : 'Creador Luba'}
+                  </p>
+
+                  {/* Stats / Info */}
+                  <p className="text-[11px] text-zinc-500 mt-1">
+                    {c.beatsCount > 0
+                      ? `${c.beatsCount} ${c.beatsCount === 1 ? 'Pista' : 'Pistas'} • Perú`
+                      : 'Perfil Creado • Perú'}
+                  </p>
+
+                  {/* Hover action prompt */}
+                  <div className="mt-3 pt-3 border-t border-white/5 flex items-center justify-center gap-1 text-[11px] font-bold text-zinc-400 group-hover:text-white transition-colors">
+                    <span>Ver Perfil Público</span>
+                    <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
+                  </div>
+                </Link>
+              );
+            })}
           </div>
-        </div>
+        )}
       </section>
 
       {/* CTA SECTION: VENDER / SUBIR */}

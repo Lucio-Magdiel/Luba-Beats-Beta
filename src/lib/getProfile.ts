@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/prisma';
 import { Beat, ItemType, MusicalKey, MusicGenre, MusicMood } from '@/types/beat';
-import { MOCK_BEATS } from '@/data/mockBeats';
 
 // Utility to generate aesthetic waveform array
 const generateWaveform = (seed: number, count = 55): number[] => {
@@ -87,23 +86,6 @@ export async function getUserProfile(username: string): Promise<UserProfileData 
     });
 
     if (!dbUser) {
-      if (cleanUsername.toLowerCase() === 'chojin') {
-        const mockChojinBeats = MOCK_BEATS.filter((b) => b.producer.handle === 'chojin');
-        return {
-          id: 2,
-          nombre_usuario: 'chojin',
-          tipo: 'productor',
-          foto_perfil: 'https://res.cloudinary.com/dacq9spfd/image/upload/v1761544297/chojin/profiles/profile_2.png',
-          banner: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1600&auto=format&fit=crop&q=80',
-          bio: 'Beatmaker & Productor musical profesional en Perú. Trap, Drill y Reggaeton moderno.',
-          verificado_google: true,
-          fecha_registro: '2026-01-01T00:00:00.000Z',
-          followersCount: 1420,
-          followingCount: 38,
-          cambios_usuario: 0,
-          beats: mockChojinBeats,
-        };
-      }
       return null;
     }
 
