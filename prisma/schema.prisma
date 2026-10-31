@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model beats {
+  id              Int              @id @default(autoincrement())
+  id_productor    Int
+  tipo            beats_tipo       @default(beat)
+  titulo          String           @db.VarChar(200)
+  genero          String?          @db.VarChar(100)
+  bpm             Int?
+  mood            String?          @db.VarChar(100)
+  precio          Decimal          @default(0.00) @db.Decimal(10, 2)
+  archivo_preview String?          @db.VarChar(255)
+  archivo_full    String?          @db.VarChar(255)
+  archivo_visual  String?          @db.VarChar(255)
+  estado          beats_estado     @default(publico)
+  duracion        String?          @db.VarChar(50)
+  nota_musical    String?          @db.VarChar(50)
+  fecha_subida    DateTime?        @default(now())
+  usuarios        usuarios         @relation(fields: [id_productor], references: [id], onDelete: Cascade, map: "beats_ibfk_1")
+  favoritos       favoritos[]
+  playlist_beats  playlist_beats[]
+  compras         compras[]
+
+  @@index([id_productor], map: "idx_beats_productor")
+}
+
+model favoritos {
+  id             Int       @id @default(autoincrement())
+  id_usuario     Int
+  id_beat        Int
+  fecha_agregado DateTime? @default(now())
+  usuarios       usuarios  @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "favoritos_ibfk_1")
+  beats          beats     @relation(fields: [id_beat], references: [id], onDelete: Cascade, map: "favoritos_ibfk_2")
+
+  @@index([id_beat], map: "idx_favoritos_beat")
+  @@index([id_usuario], map: "idx_favoritos_usuario")
+}
+
+model magic_links {
+  id         Int       @id @default(autoincrement())
+  email      String    @db.VarChar(255)
+  token      String    @unique(map: "token") @db.VarChar(64)
+  expires_at DateTime
+  used_at    DateTime?
+  created_at DateTime? @default(now())
+
+  @@index([email], map: "idx_magic_links_email")
+}
+
+model playlist_beats {
+  id             Int       @id @default(autoincrement())
+  id_playlist    Int
+  id_beat        Int
+  orden          Int?      @default(0)
+  fecha_agregado DateTime? @default(now())
+  playlists      playlists @relation(fields: [id_playlist], references: [id], onDelete: Cascade, map: "playlist_beats_ibfk_1")
+  beats          beats     @relation(fields: [id_beat], references: [id], onDelete: Cascade, map: "playlist_beats_ibfk_2")
+
+  @@unique([id_playlist, id_beat], map: "unique_playlist_beat")
+  @@index([id_beat], map: "idx_playlist_beats_beat")
+  @@index([id_playlist], map: "idx_playlist_beats_playlist")
+}
+
+model playlists {
+  id                  Int              @id @default(autoincrement())
+  id_usuario          Int
+  nombre              String           @db.VarChar(100)
+  descripcion         String?          @db.Text
+  imagen_portada      String?          @db.VarChar(255)
+  es_publica          Boolean?         @default(true)
+  fecha_creacion      DateTime?        @default(now())
+  fecha_actualizacion DateTime?        @default(now())
+  playlist_beats      playlist_beats[]
+  usuarios            usuarios         @relation(fields: [id_usuario], references: [id], onDelete: Cascade, map: "playlists_ibfk_1")
+
+  @@index([es_publica], map: "idx_playlists_publica")
+  @@index([id_usuario], map: "idx_playlists_usuario")
+}
+
+model usuarios {
+  id                 Int           @id @default(autoincrement())
+  nombre_usuario     String        @unique(map: "nombre_usuario") @db.VarChar(100)
+  correo             String        @unique(map: "correo") @db.VarChar(255)
+  contrasena         String?       @db.VarChar(255)
+  tipo               usuarios_tipo @default(comprador)
+  foto_perfil        String?       @db.VarChar(255)
+  banner             String?       @db.VarChar(255)
+  bio                String?       @db.Text
+  verificado_google  Boolean?      @default(false)
+  fecha_registro     DateTime?     @default(now())
+  cambios_usuario    Int           @default(0)
+  beats              beats[]
+  favoritos          favoritos[]
+  playlists          playlists[]
+  compras_realizadas compras[]     @relation("compras_comprador")
+  siguiendo          seguidores[]  @relation("usuario_siguiendo")
+  seguidores         seguidores[]  @relation("usuario_seguidores")
+  mensajes_enviados  mensajes[]    @relation("mensajes_enviados")
+  mensajes_recibidos mensajes[]    @relation("mensajes_recibidos")
+}
+
+model seguidores {
+  id             Int       @id @default(autoincrement())
+  id_seguidor    Int
+  id_seguido     Int
+  fecha_creacion DateTime? @default(now())
+
+  seguidor usuarios @relation("usuario_siguiendo", fields: [id_seguidor], references: [id], onDelete: Cascade, map: "fk_seguidor")
+  seguido  usuarios @relation("usuario_seguidores", fields: [id_seguido], references: [id], onDelete: Cascade, map: "fk_seguido")
+
+  @@unique([id_seguidor, id_seguido], map: "unique_seguimiento")
+  @@index([id_seguidor], map: "idx_seguidor")
+  @@index([id_seguido], map: "idx_seguido")
+}
+
+model mensajes {
+  id          Int       @id @default(autoincrement())
+  id_emisor   Int
+  id_receptor Int
+  contenido   String    @db.Text
+  leido       Boolean   @default(false)
+  fecha_envio DateTime? @default(now())
+
+  emisor   usuarios @relation("mensajes_enviados", fields: [id_emisor], references: [id], onDelete: Cascade, map: "fk_emisor")
+  receptor usuarios @relation("mensajes_recibidos", fields: [id_receptor], references: [id], onDelete: Cascade, map: "fk_receptor")
+
+  @@index([id_emisor], map: "idx_mensajes_emisor")
+  @@index([id_receptor], map: "idx_mensajes_receptor")
+  @@index([fecha_envio], map: "idx_mensajes_fecha_envio")
+}
+
+model compras {
+  id              Int              @id @default(autoincrement())
+  id_comprador    Int
+  id_beat         Int
+  id_productor    Int
+  licencia        compras_licencia @default(basic)
+  precio          Decimal          @db.Decimal(10, 2)
+  moneda          String           @default("USD") @db.VarChar(10)
+  metodo_pago     String           @db.VarChar(50)
+  referencia_pago String?          @db.VarChar(100)
+  estado          compras_estado   @default(completado)
+  fecha_compra    DateTime?        @default(now())
+
+  comprador usuarios @relation("compras_comprador", fields: [id_comprador], references: [id], onDelete: Cascade)
+  beat      beats    @relation(fields: [id_beat], references: [id], onDelete: Cascade)
+
+  @@index([id_comprador], map: "idx_compras_comprador")
+  @@index([id_beat], map: "idx_compras_beat")
+  @@index([id_productor], map: "idx_compras_productor")
+}
+
+enum beats_tipo {
+  beat
+  musica
+}
+
+enum usuarios_tipo {
+  super_admin
+  productor
+  artista
+  comprador
+}
+
+enum beats_estado {
+  publico
+  privado
+  oculto
+  eliminado
+}
+
+enum compras_licencia {
+  basic
+  premium
+  exclusive
+}
+
+enum compras_estado {
+  pendiente
+  completado
+  fallido
+  reembolsado
+}
