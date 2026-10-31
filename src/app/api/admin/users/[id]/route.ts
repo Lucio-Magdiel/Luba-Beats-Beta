@@ -50,9 +50,29 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
     }
 
     const body = await req.json();
-    const { estado, tipo } = body;
+    const { estado, tipo, strikes, addStrike, removeStrike } = body;
 
     const dataToUpdate: Record<string, any> = {};
+
+    if (addStrike === true) {
+      const nextStrikes = Math.min(3, (targetUser.strikes || 0) + 1);
+      dataToUpdate.strikes = nextStrikes;
+      if (nextStrikes >= 3) {
+        dataToUpdate.estado = 'suspendido';
+      }
+    } else if (removeStrike === true) {
+      const prevStrikes = Math.max(0, (targetUser.strikes || 0) - 1);
+      dataToUpdate.strikes = prevStrikes;
+      if (prevStrikes < 3 && targetUser.estado === 'suspendido' && estado === undefined) {
+        dataToUpdate.estado = 'activo';
+      }
+    } else if (strikes !== undefined) {
+      const cleanStrikes = Math.max(0, Math.min(3, parseInt(strikes, 10) || 0));
+      dataToUpdate.strikes = cleanStrikes;
+      if (cleanStrikes >= 3) {
+        dataToUpdate.estado = 'suspendido';
+      }
+    }
 
     if (estado !== undefined) {
       if (!['activo', 'suspendido'].includes(estado)) {
@@ -81,6 +101,7 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
         correo: true,
         tipo: true,
         estado: true,
+        strikes: true,
       },
     });
 
@@ -148,3 +169,4 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
     return NextResponse.json({ error: 'Error al eliminar usuario.' }, { status: 500 });
   }
 }
+

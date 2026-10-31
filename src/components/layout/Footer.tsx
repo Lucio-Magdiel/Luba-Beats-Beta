@@ -47,7 +47,7 @@ export const Footer: React.FC = () => {
               <li><Link href="/subir" className="hover:text-cyan-400 transition-colors">Subir & Vender Beats</Link></li>
               <li><Link href="/productor/panel" className="hover:text-cyan-400 transition-colors">Panel de Ventas & Gestión</Link></li>
               <li><Link href="/compras" className="hover:text-cyan-400 transition-colors">Mis Beats & Licencias Compradas</Link></li>
-              <li><Link href="/#catalogo" className="hover:text-cyan-400 transition-colors">Explorar Catálogo General</Link></li>
+              <li><Link href="/terminos" className="hover:text-amber-400 transition-colors">Términos & Sistema de 3 Strikes</Link></li>
             </ul>
           </div>
 
@@ -80,8 +80,15 @@ export const Footer: React.FC = () => {
 
         {/* Bottom Bar */}
         <div className="mt-12 flex flex-col md:flex-row items-center justify-between gap-4 border-t border-white/5 pt-8 text-xs text-zinc-500">
-          <div>
-            © {new Date().getFullYear()} Luba Beats Beta. Todos los derechos reservados.
+          <div className="flex flex-wrap items-center gap-2">
+            <span>© {new Date().getFullYear()} Luba Beats Beta. Todos los derechos reservados.</span>
+            <span>•</span>
+            <Link
+              href="/terminos"
+              className="hover:text-zinc-300 underline underline-offset-4 transition-colors font-medium"
+            >
+              Términos, Condiciones & 3 Strikes
+            </Link>
           </div>
 
           {/* Developer Credit Link */}

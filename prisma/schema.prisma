@@ -92,6 +92,7 @@ model usuarios {
   contrasena         String?       @db.VarChar(255)
   tipo               usuarios_tipo @default(comprador)
   estado             String        @default("activo") @db.VarChar(50)
+  strikes            Int           @default(0)
   foto_perfil        String?       @db.VarChar(255)
   banner             String?       @db.VarChar(255)
   bio                String?       @db.Text

@@ -143,3 +143,4 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: 'Error interno al guardar los cambios.' }, { status: 500 });
   }
 }
+

@@ -19,6 +19,7 @@ import {
   UserX,
   UserCheck,
   Code2,
+  Scale,
 } from 'lucide-react';
 import { useAudioStore } from '@/store/useAudioStore';
 import { Beat, defaultLicenses } from '@/types/beat';
@@ -29,6 +30,7 @@ interface UserItem {
   correo: string;
   tipo: string;
   estado: string;
+  strikes: number;
   foto_perfil: string | null;
   verificado_google: boolean;
   fecha_registro: string;
@@ -162,6 +164,71 @@ export function AdminPanelClient({
     } catch (err) {
       console.error(err);
       showToast('Error al eliminar usuario.');
+    }
+  };
+
+  // Moderation: Add or remove strike (3-Strikes System)
+  const handleModifyStrikes = async (user: UserItem, delta: 1 | -1) => {
+    if (user.id === adminUser.id) {
+      showToast('No puedes aplicarte strikes a ti mismo.');
+      return;
+    }
+
+    const isAdding = delta === 1;
+    const currentStrikes = user.strikes || 0;
+    const targetStrikes = isAdding ? currentStrikes + 1 : currentStrikes - 1;
+
+    if (isAdding && currentStrikes >= 3) {
+      showToast('El usuario ya cuenta con 3 strikes y está suspendido.');
+      return;
+    }
+
+    if (!isAdding && currentStrikes <= 0) {
+      showToast('El usuario no tiene strikes acumulados.');
+      return;
+    }
+
+    const confirmMsg = isAdding
+      ? `⚠️ APLICAR STRIKE: ¿Deseas aplicar un strike a @${user.nombre_usuario}? Pasará a tener ${targetStrikes}/3 strikes. ${
+          targetStrikes >= 3
+            ? '\n\n🚨 ALCANZARÁ EL 3ER STRIKE: Su cuenta será suspendida de inmediato.'
+            : ''
+        }`
+      : `¿Deseas remover 1 strike a @${user.nombre_usuario}? Pasará a tener ${targetStrikes}/3 strikes.`;
+
+    if (!confirm(confirmMsg)) return;
+
+    try {
+      const res = await fetch(`/api/admin/users/${user.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(isAdding ? { addStrike: true } : { removeStrike: true }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === user.id
+              ? {
+                  ...u,
+                  strikes: data.user.strikes,
+                  estado: data.user.estado,
+                }
+              : u
+          )
+        );
+        showToast(
+          isAdding
+            ? `Strike aplicado a @${user.nombre_usuario} (${data.user.strikes}/3).`
+            : `Strike removido a @${user.nombre_usuario} (${data.user.strikes}/3).`
+        );
+      } else {
+        showToast(data.error || 'Error al modificar strikes.');
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('Error de conexión con el servidor.');
     }
   };
 
@@ -305,6 +372,15 @@ export function AdminPanelClient({
 
             <div className="flex flex-wrap items-center gap-3">
               <Link
+                href="/terminos"
+                target="_blank"
+                className="flex items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/80 hover:bg-zinc-850 px-4 py-2.5 text-xs font-bold text-zinc-300 hover:text-white transition-all shadow-sm"
+              >
+                <Scale className="h-4 w-4 text-amber-400" />
+                <span>Normas & 3 Strikes</span>
+              </Link>
+
+              <Link
                 href="/desarrollador"
                 className="flex items-center gap-2 rounded-xl border border-purple-500/30 bg-purple-950/40 hover:bg-purple-900/40 px-4 py-2.5 text-xs font-bold text-purple-300 hover:border-purple-400 transition-all shadow-sm"
               >
@@ -417,6 +493,7 @@ export function AdminPanelClient({
                       <th className="px-4 py-3.5">Correo</th>
                       <th className="px-4 py-3.5">Rol</th>
                       <th className="px-4 py-3.5">Estado</th>
+                      <th className="px-4 py-3.5">Vidas / Strikes</th>
                       <th className="px-4 py-3.5">Google OAuth</th>
                       <th className="px-4 py-3.5">Fecha Registro</th>
                       <th className="py-3.5 pl-4 pr-6 text-right">Moderación</th>
@@ -426,6 +503,7 @@ export function AdminPanelClient({
                     {filteredUsers.map((u) => {
                       const isSelf = u.id === adminUser.id;
                       const isSuspended = u.estado === 'suspendido';
+                      const strikesCount = u.strikes || 0;
 
                       return (
                         <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
@@ -477,6 +555,50 @@ export function AdminPanelClient({
                               />
                               <span>{isSuspended ? 'Suspendido' : 'Activo'}</span>
                             </span>
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <div className="flex items-center gap-1.5">
+                              <span
+                                className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider inline-flex items-center gap-1 ${
+                                  strikesCount === 0
+                                    ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                                    : strikesCount === 1
+                                    ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                                    : strikesCount === 2
+                                    ? 'bg-orange-500/20 text-orange-400 border border-orange-500/40'
+                                    : 'bg-red-500/25 text-red-400 border border-red-500/50'
+                                }`}
+                              >
+                                <span>
+                                  {strikesCount === 0 && '❤️❤️❤️ 3/3 Vidas'}
+                                  {strikesCount === 1 && '❤️❤️💔 2/3 (1 Strike)'}
+                                  {strikesCount === 2 && '❤️💔💔 1/3 (2 Strikes)'}
+                                  {strikesCount >= 3 && '☠️ 0/3 (Baneado)'}
+                                </span>
+                              </span>
+
+                              {!isSelf && (
+                                <div className="flex items-center gap-1 ml-1">
+                                  <button
+                                    onClick={() => handleModifyStrikes(u, 1)}
+                                    disabled={strikesCount >= 3}
+                                    title="Aplicar Strike (+1 infracción)"
+                                    className="rounded-lg px-2 py-0.5 text-[10px] font-bold bg-red-500/20 text-red-300 hover:bg-red-500/30 disabled:opacity-30 border border-red-500/30 transition-all"
+                                  >
+                                    + Strike
+                                  </button>
+                                  {strikesCount > 0 && (
+                                    <button
+                                      onClick={() => handleModifyStrikes(u, -1)}
+                                      title="Remover Strike (-1)"
+                                      className="rounded-lg px-2 py-0.5 text-[10px] font-bold bg-white/10 text-zinc-300 hover:bg-white/20 border border-white/10 transition-all"
+                                    >
+                                      -1
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           </td>
                           <td className="px-4 py-3.5">
                             {u.verificado_google ? (

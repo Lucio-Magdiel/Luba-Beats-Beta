@@ -20,7 +20,6 @@ import {
   Check,
   Sparkles,
   Shield,
-  ShieldAlert,
   X,
   Scale,
 } from "lucide-react";
@@ -355,10 +354,10 @@ export default function RegisterPage() {
               )}
 
               {/* Informative Rules Pill */}
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-purple-950/30 border border-purple-500/20 text-[11px] text-purple-300">
+              <div className="flex items-center gap-2.5 p-3 rounded-xl bg-purple-950/30 border border-purple-500/20 text-[11px] text-purple-200">
                 <Scale className="h-4 w-4 shrink-0 text-purple-400" />
-                <span>
-                  Comunidad musical protegida. Al registrarte te comprometes a respetar los derechos de autor y normas de convivencia.
+                <span className="leading-snug">
+                  Plataforma <strong>100% musical con Sistema de 3 Vidas (Strikes)</strong>. Prohibido subir audios que no sean música, spam o contenido ajeno.
                 </span>
               </div>
 
@@ -578,7 +577,7 @@ export default function RegisterPage() {
                     htmlFor="acepta-reglas"
                     className="text-xs text-zinc-300 leading-relaxed cursor-pointer select-none"
                   >
-                    He leído y acepto cumplir las{' '}
+                    He leído y acepto los{' '}
                     <button
                       type="button"
                       onClick={(e) => {
@@ -587,24 +586,33 @@ export default function RegisterPage() {
                       }}
                       className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 underline underline-offset-2 hover:opacity-85 inline-flex items-center gap-1"
                     >
-                      Reglas de la Comunidad & Términos
+                      Términos, Condiciones y Sistema de 3 Vidas (Strikes)
                     </button>
-                    . Entiendo que subir material con derechos de autor ajenos, cometer fraude o plagio conllevará la{' '}
-                    <span className="text-red-400 font-bold">suspensión o eliminación definitiva</span> de mi cuenta y obras por moderación.
+                    . Acepto que <strong>está prohibido subir contenido ajeno a la música</strong> y que a la <strong>3ra infracción (3 strikes)</strong> mi cuenta y todo mi contenido serán eliminados definitivamente de la plataforma.
                   </label>
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/5 text-[11px] text-zinc-400">
-                  <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
-                    <Shield className="h-3.5 w-3.5" /> Protección legal y respeto autoral
+                  <span className="flex items-center gap-1.5 text-amber-400 font-medium">
+                    <Shield className="h-3.5 w-3.5 text-amber-400" /> Sistema de 3 Vidas: Al 3er strike = Eliminación total
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => setMostrarReglasModal(true)}
-                    className="text-purple-400 hover:text-purple-300 font-semibold underline text-[11px]"
-                  >
-                    Ver Normas & Sanciones
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setMostrarReglasModal(true)}
+                      className="text-purple-400 hover:text-purple-300 font-semibold underline text-[11px]"
+                    >
+                      Ver Resumen de Reglas
+                    </button>
+                    <span className="text-zinc-600">•</span>
+                    <Link
+                      href="/terminos"
+                      target="_blank"
+                      className="text-cyan-400 hover:text-cyan-300 font-semibold underline text-[11px]"
+                    >
+                      Leer Términos Completos
+                    </Link>
+                  </div>
                 </div>
               </div>
 
@@ -692,53 +700,78 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-4 text-xs text-zinc-300 max-h-[60vh] overflow-y-auto pr-2 leading-relaxed">
+              {/* Highlight Sistema de 3 Vidas */}
+              <div className="rounded-2xl border border-red-500/30 bg-gradient-to-r from-red-950/30 via-zinc-900 to-amber-950/20 p-4 space-y-2">
+                <div className="flex items-center gap-2 text-sm font-extrabold text-white">
+                  <span className="text-base">☠️</span>
+                  <span>Sistema de 3 Vidas (3 Strikes)</span>
+                  <span className="rounded-full bg-red-500/20 border border-red-500/30 px-2 py-0.5 text-[10px] font-bold text-red-300 ml-auto">
+                    Norma Estricta
+                  </span>
+                </div>
+                <p className="text-zinc-300 leading-relaxed text-[11px]">
+                  Cada usuario dispone de <strong>3 vidas</strong>. Cualquier infracción acumulará un strike:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-[11px]">
+                  <div className="rounded-xl border border-white/5 bg-black/40 p-2">
+                    <span className="font-bold text-emerald-400 block mb-0.5">❤️ Vida 1</span>
+                    <span className="text-zinc-400">Primer aviso y retiro de la pista u obra en falta.</span>
+                  </div>
+                  <div className="rounded-xl border border-amber-500/20 bg-amber-950/20 p-2">
+                    <span className="font-bold text-amber-400 block mb-0.5">💔 Vida 2</span>
+                    <span className="text-amber-200/80">Suspensión preventiva y última oportunidad.</span>
+                  </div>
+                  <div className="rounded-xl border border-red-500/30 bg-red-950/30 p-2">
+                    <span className="font-bold text-red-400 block mb-0.5">☠️ Vida 3</span>
+                    <span className="text-red-200/90 font-bold">Eliminación definitiva de cuenta y catálogo.</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 1. Contenido 100% Musical */}
               <div className="rounded-2xl border border-white/5 bg-zinc-900/60 p-4 space-y-1.5">
                 <div className="flex items-center gap-2 text-sm font-bold text-white">
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-600/30 text-purple-400 text-xs font-mono">1</span>
-                  <span>Propiedad Intelectual y Derechos de Autor</span>
+                  <span>Contenido 100% Musical (Prohibido Otro Tipo de Material)</span>
                 </div>
-                <p className="text-zinc-400 pl-7">
-                  Toda instrumental, pista musical, stem o pista vocal que subas a la plataforma debe ser <strong className="text-zinc-200">100% de tu autoría</strong> o contar con los derechos y licencias comerciales válidas. Queda prohibido el uso no autorizado de samples protegidos.
+                <p className="text-zinc-400 pl-7 leading-relaxed">
+                  Luba Beats es un ecosistema exclusivamente musical. <strong>Queda rotundamente prohibido subir cualquier archivo que no sea una pista de audio musical</strong> (están vetados audios cómicos, notas de voz, memes, discursos no musicales o archivos basura). Subir material ajeno a la música provocará la baja inmediata y la aplicación de un strike.
                 </p>
               </div>
 
+              {/* 2. Propiedad Intelectual */}
               <div className="rounded-2xl border border-white/5 bg-zinc-900/60 p-4 space-y-1.5">
                 <div className="flex items-center gap-2 text-sm font-bold text-white">
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-600/30 text-purple-400 text-xs font-mono">2</span>
-                  <span>Tolerancia Cero al Plagio y Reventa Ilegal</span>
+                  <span>Propiedad Intelectual y Originalidad Obligatoria</span>
                 </div>
-                <p className="text-zinc-400 pl-7">
-                  No se permite comercializar obras de terceros, beats extraídos de internet sin autorización o revender instrumentales exclusivas que ya fueron cedidas legalmente.
+                <p className="text-zinc-400 pl-7 leading-relaxed">
+                  Toda instrumental, pista o beat que subas debe ser <strong className="text-zinc-200">100% de tu autoría</strong> o contar con derechos de uso comercial. Queda prohibido el plagio o resubir instrumentales ajenas descargadas de internet.
                 </p>
               </div>
 
+              {/* 3. Pagos y Fraude Cero */}
               <div className="rounded-2xl border border-white/5 bg-zinc-900/60 p-4 space-y-1.5">
                 <div className="flex items-center gap-2 text-sm font-bold text-white">
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-600/30 text-purple-400 text-xs font-mono">3</span>
-                  <span>Transparencia en Pagos y Compras</span>
+                  <span>Transacciones Claras y Fraude Cero</span>
                 </div>
-                <p className="text-zinc-400 pl-7">
-                  Todas las operaciones por pasarelas (Culqi, Yape, Plin, Tarjetas) se auditan electrónicamente. Intentos de estafa, falsificación de comprobantes de pago o reclamos maliciosos generarán acciones legales y bloqueo total.
+                <p className="text-zinc-400 pl-7 leading-relaxed">
+                  Todos los pagos (Culqi, Yape, Plin) se auditan electrónicamente. Intentos de estafa con comprobantes falsos causarán la cancelación de la cuenta y veto permanente.
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-white/5 bg-zinc-900/60 p-4 space-y-1.5">
-                <div className="flex items-center gap-2 text-sm font-bold text-white">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-600/30 text-purple-400 text-xs font-mono">4</span>
-                  <span>Convivencia Profesional y Respeto Mutuo</span>
-                </div>
-                <p className="text-zinc-400 pl-7">
-                  La mensajería y los perfiles son para fines colaborativos y comerciales en la música. Está prohibido el acoso, los insultos, el spam masivo y la suplantación de identidad.
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-red-500/20 bg-red-950/20 p-4 space-y-1.5">
-                <div className="flex items-center gap-2 text-sm font-bold text-red-300">
-                  <ShieldAlert className="h-4 w-4 text-red-400" />
-                  <span>Sanciones y Facultades de Moderación</span>
-                </div>
-                <p className="text-red-200/80 text-[11px] leading-relaxed">
-                  El equipo de <strong className="text-white">Super Administración</strong> tiene la potestad de <strong>suspender cuentas temporal o permanentemente</strong>, remover contenido que infrinja derechos de autor y rescindir licencias viciadas sin derecho a reembolso.
+              {/* Enlace oficial */}
+              <div className="p-3 rounded-xl bg-purple-950/20 border border-purple-500/20 text-center">
+                <p className="text-xs text-zinc-300">
+                  ¿Deseas leer el documento legal completo?{' '}
+                  <Link
+                    href="/terminos"
+                    target="_blank"
+                    className="text-purple-400 hover:text-purple-300 font-bold underline underline-offset-2"
+                  >
+                    Ver Términos y Condiciones Oficiales de Luba Beats
+                  </Link>
                 </p>
               </div>
             </div>
