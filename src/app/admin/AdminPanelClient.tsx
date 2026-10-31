@@ -16,6 +16,9 @@ import {
   CheckCircle2,
   Layers,
   Crown,
+  UserX,
+  UserCheck,
+  Code2,
 } from 'lucide-react';
 import { useAudioStore } from '@/store/useAudioStore';
 import { Beat, defaultLicenses } from '@/types/beat';
@@ -25,6 +28,7 @@ interface UserItem {
   nombre_usuario: string;
   correo: string;
   tipo: string;
+  estado: string;
   foto_perfil: string | null;
   verificado_google: boolean;
   fecha_registro: string;
@@ -66,7 +70,7 @@ export function AdminPanelClient({
   beats: initialBeats,
 }: Props) {
   const [activeTab, setActiveTab] = useState<'usuarios' | 'catalogo'>('usuarios');
-  const [users] = useState<UserItem[]>(initialUsers);
+  const [users, setUsers] = useState<UserItem[]>(initialUsers);
   const [beats, setBeats] = useState<BeatAdminItem[]>(initialBeats);
   const [searchUsers, setSearchUsers] = useState('');
   const [searchBeats, setSearchBeats] = useState('');
@@ -77,6 +81,88 @@ export function AdminPanelClient({
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  // Moderation: Toggle user suspend
+  const handleToggleUserSuspend = async (user: UserItem) => {
+    if (user.id === adminUser.id) {
+      showToast('No puedes suspender tu propia cuenta de Super Admin.');
+      return;
+    }
+
+    const nextEstado = user.estado === 'suspendido' ? 'activo' : 'suspendido';
+    const actionText = nextEstado === 'suspendido' ? 'suspender' : 'reactivar';
+
+    if (
+      !confirm(
+        `¿Estás seguro de que deseas ${actionText} la cuenta de @${user.nombre_usuario}? ${
+          nextEstado === 'suspendido'
+            ? 'El usuario no podrá iniciar sesión en la plataforma por incumplir las normas comunitarias.'
+            : 'El usuario recuperará el acceso normal a su cuenta.'
+        }`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/users/${user.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado: nextEstado }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setUsers((prev) =>
+          prev.map((u) => (u.id === user.id ? { ...u, estado: nextEstado } : u))
+        );
+        showToast(
+          `Usuario @${user.nombre_usuario} ${
+            nextEstado === 'suspendido' ? 'suspendido' : 'reactivado'
+          }.`
+        );
+      } else {
+        showToast(data.error || 'Error al actualizar el usuario.');
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('Error de conexión con el servidor.');
+    }
+  };
+
+  // Moderation: Delete user permanently
+  const handleDeleteUser = async (user: UserItem) => {
+    if (user.id === adminUser.id) {
+      showToast('No puedes eliminar tu propia cuenta de Super Admin.');
+      return;
+    }
+
+    if (
+      !confirm(
+        `⚠️ ADVERTENCIA CRÍTICA: ¿Estás seguro de eliminar permanentemente a @${user.nombre_usuario}?\n\nEsta acción borrará al usuario, sus pistas musicales, compras registradas y comentarios de forma irreversible.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/users/${user.id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setUsers((prev) => prev.filter((u) => u.id !== user.id));
+        setBeats((prev) => prev.filter((b) => b.productor.id !== user.id));
+        showToast(`Usuario @${user.nombre_usuario} y sus contenidos eliminados.`);
+      } else {
+        showToast(data.error || 'Error al eliminar usuario.');
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('Error al eliminar usuario.');
+    }
   };
 
   // Metrics
@@ -217,7 +303,15 @@ export function AdminPanelClient({
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/desarrollador"
+                className="flex items-center gap-2 rounded-xl border border-purple-500/30 bg-purple-950/40 hover:bg-purple-900/40 px-4 py-2.5 text-xs font-bold text-purple-300 hover:border-purple-400 transition-all shadow-sm"
+              >
+                <Code2 className="h-4 w-4 text-purple-400" />
+                <span>Editar Vista de Desarrollador</span>
+              </Link>
+
               <Link
                 href="/subir"
                 className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-2.5 text-xs font-black text-zinc-950 shadow-lg shadow-amber-500/20 hover:from-amber-400 hover:to-orange-400 transition-all"
@@ -322,63 +416,131 @@ export function AdminPanelClient({
                       <th className="py-3.5 pl-6 pr-3">Usuario</th>
                       <th className="px-4 py-3.5">Correo</th>
                       <th className="px-4 py-3.5">Rol</th>
+                      <th className="px-4 py-3.5">Estado</th>
                       <th className="px-4 py-3.5">Google OAuth</th>
                       <th className="px-4 py-3.5">Fecha Registro</th>
-                      <th className="py-3.5 pl-4 pr-6 text-right">Perfil</th>
+                      <th className="py-3.5 pl-4 pr-6 text-right">Moderación</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {filteredUsers.map((u) => (
-                      <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
-                        <td className="py-3.5 pl-6 pr-3">
-                          <div className="flex items-center gap-3">
-                            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center font-bold text-white text-xs">
-                              {u.nombre_usuario[0].toUpperCase()}
+                    {filteredUsers.map((u) => {
+                      const isSelf = u.id === adminUser.id;
+                      const isSuspended = u.estado === 'suspendido';
+
+                      return (
+                        <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
+                          <td className="py-3.5 pl-6 pr-3">
+                            <div className="flex items-center gap-3">
+                              <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center font-bold text-white text-xs">
+                                {u.nombre_usuario[0].toUpperCase()}
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="font-bold text-white text-sm">
+                                  {u.nombre_usuario}
+                                </span>
+                                {isSelf && (
+                                  <span className="text-[10px] font-mono text-amber-400">
+                                    (Super Admin Actual)
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                            <span className="font-bold text-white text-sm">
-                              {u.nombre_usuario}
+                          </td>
+                          <td className="px-4 py-3.5 font-mono text-zinc-300">{u.correo}</td>
+                          <td className="px-4 py-3.5">
+                            <span
+                              className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                                u.tipo === 'super_admin'
+                                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                  : u.tipo === 'productor'
+                                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                  : u.tipo === 'artista'
+                                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                                  : 'bg-zinc-800 text-zinc-400'
+                              }`}
+                            >
+                              {u.tipo}
                             </span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3.5 font-mono text-zinc-300">{u.correo}</td>
-                        <td className="px-4 py-3.5">
-                          <span
-                            className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                              u.tipo === 'super_admin'
-                                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                                : u.tipo === 'productor'
-                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                                : u.tipo === 'artista'
-                                ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-                                : 'bg-zinc-800 text-zinc-400'
-                            }`}
-                          >
-                            {u.tipo}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3.5">
-                          {u.verificado_google ? (
-                            <span className="text-emerald-400 flex items-center gap-1 font-semibold">
-                              <CheckCircle2 className="h-3.5 w-3.5" /> Sí
+                          </td>
+                          <td className="px-4 py-3.5">
+                            <span
+                              className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider inline-flex items-center gap-1.5 ${
+                                isSuspended
+                                  ? 'bg-red-500/20 text-red-400 border border-red-500/40'
+                                  : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                              }`}
+                            >
+                              <span
+                                className={`h-1.5 w-1.5 rounded-full ${
+                                  isSuspended ? 'bg-red-400 animate-pulse' : 'bg-emerald-400'
+                                }`}
+                              />
+                              <span>{isSuspended ? 'Suspendido' : 'Activo'}</span>
                             </span>
-                          ) : (
-                            <span className="text-zinc-500">No</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3.5 font-mono text-zinc-400">
-                          {new Date(u.fecha_registro).toLocaleDateString('es-ES')}
-                        </td>
-                        <td className="py-3.5 pl-4 pr-6 text-right">
-                          <Link
-                            href={`/perfil/${u.nombre_usuario}`}
-                            className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2.5 py-1 text-[11px] font-bold text-zinc-300 hover:text-white hover:bg-white/5 transition-all"
-                          >
-                            <span>Ver</span>
-                            <ExternalLink className="h-3 w-3" />
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                          <td className="px-4 py-3.5">
+                            {u.verificado_google ? (
+                              <span className="text-emerald-400 flex items-center gap-1 font-semibold">
+                                <CheckCircle2 className="h-3.5 w-3.5" /> Sí
+                              </span>
+                            ) : (
+                              <span className="text-zinc-500">No</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3.5 font-mono text-zinc-400">
+                            {new Date(u.fecha_registro).toLocaleDateString('es-ES')}
+                          </td>
+                          <td className="py-3.5 pl-4 pr-6 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <Link
+                                href={`/perfil/${u.nombre_usuario}`}
+                                className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2.5 py-1 text-[11px] font-bold text-zinc-300 hover:text-white hover:bg-white/5 transition-all"
+                                title="Ver perfil público"
+                              >
+                                <span>Ver</span>
+                                <ExternalLink className="h-3 w-3" />
+                              </Link>
+
+                              {!isSelf ? (
+                                <>
+                                  <button
+                                    onClick={() => handleToggleUserSuspend(u)}
+                                    title={
+                                      isSuspended
+                                        ? 'Reactivar acceso al usuario'
+                                        : 'Suspender por incumplir normas'
+                                    }
+                                    className={`rounded-lg border p-1.5 text-xs font-bold transition-all ${
+                                      isSuspended
+                                        ? 'border-emerald-500/40 bg-emerald-950/40 text-emerald-300 hover:bg-emerald-900/50'
+                                        : 'border-amber-500/40 bg-amber-950/40 text-amber-300 hover:bg-amber-900/50'
+                                    }`}
+                                  >
+                                    {isSuspended ? (
+                                      <UserCheck className="h-3.5 w-3.5" />
+                                    ) : (
+                                      <UserX className="h-3.5 w-3.5" />
+                                    )}
+                                  </button>
+
+                                  <button
+                                    onClick={() => handleDeleteUser(u)}
+                                    title="Eliminar usuario definitivamente"
+                                    className="rounded-lg border border-red-500/40 bg-red-950/40 p-1.5 text-red-400 hover:bg-red-900/50 hover:text-red-200 transition-all"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                </>
+                              ) : (
+                                <span className="rounded-lg bg-white/5 px-2 py-1 text-[10px] font-mono font-semibold text-zinc-500 border border-white/5">
+                                  Tú
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

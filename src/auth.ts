@@ -1,4 +1,4 @@
-﻿import NextAuth from "next-auth";
+import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
@@ -52,6 +52,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
           if (!magicUser) return null;
 
+          if (magicUser.estado === 'suspendido') {
+            console.warn(`Intento de acceso con cuenta suspendida: ${magicUser.correo}`);
+            return null;
+          }
+
           return {
             id: String(magicUser.id),
             name: magicUser.nombre_usuario,
@@ -89,6 +94,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const isValid = await bcrypt.compare(passStr, normalizedHash);
 
           if (!isValid) {
+            return null;
+          }
+
+          if (user.estado === 'suspendido') {
+            console.warn(`Intento de login con cuenta suspendida: ${user.correo}`);
             return null;
           }
 
@@ -143,6 +153,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               where: { id: dbUser.id },
               data: { verificado_google: true },
             });
+          }
+
+          if (dbUser.estado === 'suspendido') {
+            console.warn(`Intento de login con Google en cuenta suspendida: ${cleanEmail}`);
+            return false;
           }
 
           // Asignar los datos del usuario en la base de datos

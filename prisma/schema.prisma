@@ -91,6 +91,7 @@ model usuarios {
   correo             String        @unique(map: "correo") @db.VarChar(255)
   contrasena         String?       @db.VarChar(255)
   tipo               usuarios_tipo @default(comprador)
+  estado             String        @default("activo") @db.VarChar(50)
   foto_perfil        String?       @db.VarChar(255)
   banner             String?       @db.VarChar(255)
   bio                String?       @db.Text
@@ -105,6 +106,12 @@ model usuarios {
   seguidores         seguidores[]  @relation("usuario_seguidores")
   mensajes_enviados  mensajes[]    @relation("mensajes_enviados")
   mensajes_recibidos mensajes[]    @relation("mensajes_recibidos")
+}
+
+model config_sistema {
+  clave      String   @id @db.VarChar(100)
+  valor      String   @db.Text
+  updated_at DateTime @default(now()) @updatedAt
 }
 
 model seguidores {

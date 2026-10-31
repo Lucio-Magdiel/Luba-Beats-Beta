@@ -95,6 +95,7 @@ export async function POST(req: NextRequest) {
         correo: cleanEmail,
         contrasena: hashedPassword,
         tipo: userRole,
+        estado: 'activo',
         verificado_google: false,
       },
       select: {
@@ -102,6 +103,7 @@ export async function POST(req: NextRequest) {
         nombre_usuario: true,
         correo: true,
         tipo: true,
+        estado: true,
         foto_perfil: true,
         fecha_registro: true,
       },

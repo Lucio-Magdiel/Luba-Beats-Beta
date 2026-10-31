@@ -19,6 +19,10 @@ import {
   CheckCircle2,
   Check,
   Sparkles,
+  Shield,
+  ShieldAlert,
+  X,
+  Scale,
 } from "lucide-react";
 
 type RoleType = "comprador" | "productor" | "artista";
@@ -34,6 +38,8 @@ export default function RegisterPage() {
   const [correo, setCorreo] = useState("");
   const [contrasena, setContrasena] = useState("");
   const [confirmarContrasena, setConfirmarContrasena] = useState("");
+  const [aceptaReglas, setAceptaReglas] = useState(false);
+  const [mostrarReglasModal, setMostrarReglasModal] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -90,6 +96,12 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!aceptaReglas) {
+      setError("Debes leer y aceptar las Reglas de la Comunidad y Términos de Servicio para registrarte.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -101,6 +113,7 @@ export default function RegisterPage() {
           correo: correo.trim().toLowerCase(),
           contrasena,
           tipo,
+          acepta_reglas: true,
         }),
       });
 
@@ -341,6 +354,14 @@ export default function RegisterPage() {
                 </div>
               )}
 
+              {/* Informative Rules Pill */}
+              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-purple-950/30 border border-purple-500/20 text-[11px] text-purple-300">
+                <Scale className="h-4 w-4 shrink-0 text-purple-400" />
+                <span>
+                  Comunidad musical protegida. Al registrarte te comprometes a respetar los derechos de autor y normas de convivencia.
+                </span>
+              </div>
+
               <button
                 type="submit"
                 className="w-full mt-5 py-3 px-4 rounded-xl font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 text-xs sm:text-sm"
@@ -543,6 +564,50 @@ export default function RegisterPage() {
                 </div>
               </div>
 
+              {/* Reglas de la Comunidad y Términos de Servicio */}
+              <div className="rounded-2xl border border-white/10 bg-black/40 p-4 space-y-3">
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    id="acepta-reglas"
+                    checked={aceptaReglas}
+                    onChange={(e) => setAceptaReglas(e.target.checked)}
+                    className="mt-1 h-4 w-4 rounded border-white/20 bg-zinc-900 text-purple-600 focus:ring-purple-500 cursor-pointer shrink-0"
+                  />
+                  <label
+                    htmlFor="acepta-reglas"
+                    className="text-xs text-zinc-300 leading-relaxed cursor-pointer select-none"
+                  >
+                    He leído y acepto cumplir las{' '}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setMostrarReglasModal(true);
+                      }}
+                      className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 underline underline-offset-2 hover:opacity-85 inline-flex items-center gap-1"
+                    >
+                      Reglas de la Comunidad & Términos
+                    </button>
+                    . Entiendo que subir material con derechos de autor ajenos, cometer fraude o plagio conllevará la{' '}
+                    <span className="text-red-400 font-bold">suspensión o eliminación definitiva</span> de mi cuenta y obras por moderación.
+                  </label>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/5 text-[11px] text-zinc-400">
+                  <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+                    <Shield className="h-3.5 w-3.5" /> Protección legal y respeto autoral
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setMostrarReglasModal(true)}
+                    className="text-purple-400 hover:text-purple-300 font-semibold underline text-[11px]"
+                  >
+                    Ver Normas & Sanciones
+                  </button>
+                </div>
+              </div>
+
               {/* Botones de Navegación de Paso 2 */}
               <div className="flex flex-col sm:flex-row items-center gap-3 pt-3">
                 <button
@@ -598,6 +663,109 @@ export default function RegisterPage() {
           </Link>
         </p>
       </div>
+
+      {/* Modal de Reglas de la Comunidad y Términos */}
+      {mostrarReglasModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
+          <div className="relative w-full max-w-2xl rounded-3xl border border-purple-500/30 bg-zinc-950 p-6 sm:p-8 shadow-2xl my-8">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-5">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-500/20 border border-purple-500/30">
+                  <Scale className="h-5 w-5 text-purple-400" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    Reglas Oficiales de la Comunidad Luba Beats
+                  </h3>
+                  <p className="text-xs text-zinc-400">
+                    Normas obligatorias de convivencia, autoría y comercialización.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMostrarReglasModal(false)}
+                className="rounded-lg p-1.5 text-zinc-400 hover:text-white hover:bg-white/10"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs text-zinc-300 max-h-[60vh] overflow-y-auto pr-2 leading-relaxed">
+              <div className="rounded-2xl border border-white/5 bg-zinc-900/60 p-4 space-y-1.5">
+                <div className="flex items-center gap-2 text-sm font-bold text-white">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-600/30 text-purple-400 text-xs font-mono">1</span>
+                  <span>Propiedad Intelectual y Derechos de Autor</span>
+                </div>
+                <p className="text-zinc-400 pl-7">
+                  Toda instrumental, pista musical, stem o pista vocal que subas a la plataforma debe ser <strong className="text-zinc-200">100% de tu autoría</strong> o contar con los derechos y licencias comerciales válidas. Queda prohibido el uso no autorizado de samples protegidos.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-white/5 bg-zinc-900/60 p-4 space-y-1.5">
+                <div className="flex items-center gap-2 text-sm font-bold text-white">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-600/30 text-purple-400 text-xs font-mono">2</span>
+                  <span>Tolerancia Cero al Plagio y Reventa Ilegal</span>
+                </div>
+                <p className="text-zinc-400 pl-7">
+                  No se permite comercializar obras de terceros, beats extraídos de internet sin autorización o revender instrumentales exclusivas que ya fueron cedidas legalmente.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-white/5 bg-zinc-900/60 p-4 space-y-1.5">
+                <div className="flex items-center gap-2 text-sm font-bold text-white">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-600/30 text-purple-400 text-xs font-mono">3</span>
+                  <span>Transparencia en Pagos y Compras</span>
+                </div>
+                <p className="text-zinc-400 pl-7">
+                  Todas las operaciones por pasarelas (Culqi, Yape, Plin, Tarjetas) se auditan electrónicamente. Intentos de estafa, falsificación de comprobantes de pago o reclamos maliciosos generarán acciones legales y bloqueo total.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-white/5 bg-zinc-900/60 p-4 space-y-1.5">
+                <div className="flex items-center gap-2 text-sm font-bold text-white">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-600/30 text-purple-400 text-xs font-mono">4</span>
+                  <span>Convivencia Profesional y Respeto Mutuo</span>
+                </div>
+                <p className="text-zinc-400 pl-7">
+                  La mensajería y los perfiles son para fines colaborativos y comerciales en la música. Está prohibido el acoso, los insultos, el spam masivo y la suplantación de identidad.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-red-500/20 bg-red-950/20 p-4 space-y-1.5">
+                <div className="flex items-center gap-2 text-sm font-bold text-red-300">
+                  <ShieldAlert className="h-4 w-4 text-red-400" />
+                  <span>Sanciones y Facultades de Moderación</span>
+                </div>
+                <p className="text-red-200/80 text-[11px] leading-relaxed">
+                  El equipo de <strong className="text-white">Super Administración</strong> tiene la potestad de <strong>suspender cuentas temporal o permanentemente</strong>, remover contenido que infrinja derechos de autor y rescindir licencias viciadas sin derecho a reembolso.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10 mt-5">
+              <button
+                type="button"
+                onClick={() => setMostrarReglasModal(false)}
+                className="rounded-xl border border-white/10 px-4 py-2 text-xs font-bold text-zinc-300 hover:bg-white/5"
+              >
+                Cerrar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAceptaReglas(true);
+                  setMostrarReglasModal(false);
+                }}
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-5 py-2 text-xs font-bold text-white shadow-lg shadow-purple-600/30 hover:from-purple-500 hover:to-indigo-500 transition-all active:scale-95"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                <span>Entendido y Aceptar Reglas</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
