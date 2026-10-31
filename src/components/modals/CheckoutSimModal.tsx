@@ -474,6 +474,21 @@ satisfactoriamente en Luba Beats Marketplace a través de la pasarela Culqi.
                         <span className="text-emerald-400 font-semibold">3D Secure 2.0 Antifraude</span>
                       </div>
                     </div>
+
+                    {culqiConfig?.isTest && (
+                      <div className="rounded-xl border border-purple-500/30 bg-purple-950/30 p-3 text-xs text-purple-200 space-y-1">
+                        <div className="flex items-center gap-1.5 font-bold text-purple-300">
+                          <CreditCard className="h-4 w-4 text-purple-400" />
+                          <span>Tarjeta Oficial de Prueba Culqi (Sandbox)</span>
+                        </div>
+                        <p className="text-[11px] text-zinc-300 font-mono">
+                          Visa: <strong className="text-white">4111 1111 1111 1111</strong> | Exp: <strong className="text-white">12/28</strong> | CVV: <strong className="text-white">123</strong>
+                        </p>
+                        <p className="text-[10px] text-zinc-400">
+                          Ingresa esta tarjeta en la ventana de Culqi para completar una prueba exitosa.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
 
