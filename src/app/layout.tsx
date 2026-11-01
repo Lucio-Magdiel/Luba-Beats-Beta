@@ -22,7 +22,20 @@ export const metadata: Metadata = {
     'plin',
     'peru',
     'beatmakers'
-  ]
+  ],
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+  },
+  manifest: '/site.webmanifest',
 };
 
 import { AuthProvider } from '@/components/providers/AuthProvider';
@@ -34,6 +47,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className="dark">
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="theme-color" content="#9333ea" />
+      </head>
       <body className="min-h-screen bg-[#09090b] text-[#f4f4f5] antialiased selection:bg-purple-500 selection:text-white">
         <AuthProvider>
           <Navbar />
