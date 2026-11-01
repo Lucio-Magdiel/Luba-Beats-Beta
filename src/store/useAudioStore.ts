@@ -141,13 +141,33 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
       finalQueue = buildAutoplayQueue(beat, state.catalog);
     }
 
+    // Optimistically increment views/plays
+    const updatedPlays = (beat.plays || 0) + 1;
+    const updatedBeat = { ...beat, plays: updatedPlays };
+    const updatedQueue = finalQueue.map((b) =>
+      b.id === beat.id ? { ...b, plays: updatedPlays } : b
+    );
+    const updatedCatalog = state.catalog.map((b) =>
+      b.id === beat.id ? { ...b, plays: updatedPlays } : b
+    );
+
+    // Persist play count in backend DB (non-blocking)
+    if (typeof window !== 'undefined') {
+      fetch('/api/beats/play', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ beatId: beat.id }),
+      }).catch((err) => console.warn('Could not record view:', err));
+    }
+
     set({
-      currentBeat: beat,
+      currentBeat: updatedBeat,
       isPlaying: true,
       currentTime: 0,
       duration: beat.duration,
       seekTarget: 0,
-      queue: finalQueue
+      queue: updatedQueue,
+      catalog: updatedCatalog,
     });
   },
 
@@ -371,15 +391,33 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
   },
 
   playFromQueue: (index) => {
-    const { queue } = get();
+    const { queue, catalog } = get();
     if (index < 0 || index >= queue.length) return;
     const targetBeat = queue[index];
+
+    const updatedPlays = (targetBeat.plays || 0) + 1;
+    const updatedTarget = { ...targetBeat, plays: updatedPlays };
+    const updatedQueue = queue.map((b, i) => (i === index ? updatedTarget : b));
+    const updatedCatalog = catalog.map((b) =>
+      b.id === targetBeat.id ? { ...b, plays: updatedPlays } : b
+    );
+
+    if (typeof window !== 'undefined') {
+      fetch('/api/beats/play', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ beatId: targetBeat.id }),
+      }).catch(() => {});
+    }
+
     set({
-      currentBeat: targetBeat,
+      currentBeat: updatedTarget,
       isPlaying: true,
       currentTime: 0,
       seekTarget: 0,
       duration: targetBeat.duration,
+      queue: updatedQueue,
+      catalog: updatedCatalog,
     });
   }
 }));

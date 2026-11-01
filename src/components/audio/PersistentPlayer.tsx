@@ -16,10 +16,12 @@ import {
   Download,
   ListMusic,
   ChevronUp,
+  Headphones,
 } from 'lucide-react';
 import { useAudioStore } from '@/store/useAudioStore';
 import { useCartStore } from '@/store/useCartStore';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
+import { formatPlays } from '@/lib/formatPlays';
 import { WaveformVisualizer } from './WaveformVisualizer';
 import { QueuePlaylistModal } from './QueuePlaylistModal';
 
@@ -338,6 +340,11 @@ export const PersistentPlayer: React.FC = () => {
                   <span>•</span>
                   <span className="text-[11px] text-zinc-500 font-mono">
                     {currentBeat.key}
+                  </span>
+                  <span>•</span>
+                  <span className="flex items-center gap-1 text-[11px] text-zinc-400 font-mono" title={`${currentBeat.plays.toLocaleString()} vistas / reproducciones`}>
+                    <Headphones className="h-3 w-3 text-purple-400" />
+                    <span>{formatPlays(currentBeat.plays)}</span>
                   </span>
                 </div>
               </div>

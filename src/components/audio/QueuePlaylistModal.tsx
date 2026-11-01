@@ -22,7 +22,9 @@ import {
   Sparkles,
   Disc3,
   Layers,
+  Headphones,
 } from 'lucide-react';
+import { formatPlays } from '@/lib/formatPlays';
 import { useAudioStore } from '@/store/useAudioStore';
 import { useCartStore } from '@/store/useCartStore';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
@@ -85,7 +87,7 @@ export const QueuePlaylistModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/90 backdrop-blur-2xl animate-in fade-in duration-200">
-      
+
       {/* Outer Click to Dismiss (on top strip) */}
       <div
         className="hidden md:block absolute inset-0 -z-10"
@@ -94,7 +96,7 @@ export const QueuePlaylistModal: React.FC = () => {
 
       {/* Main YouTube Music Full Player / Queue Container */}
       <div className="relative flex h-[94vh] md:h-[92vh] w-full max-w-7xl mx-auto flex-col overflow-hidden rounded-t-[32px] md:rounded-t-[36px] border border-white/10 bg-gradient-to-b from-zinc-900/98 via-zinc-950 to-black shadow-2xl backdrop-blur-3xl animate-in slide-in-from-bottom-8 duration-300">
-        
+
         {/* Glow ambient effects */}
         <div className="pointer-events-none absolute -top-40 left-1/4 h-96 w-96 rounded-full bg-purple-600/20 blur-[130px]" />
         <div className="pointer-events-none absolute -top-20 right-1/4 h-80 w-80 rounded-full bg-cyan-500/15 blur-[120px]" />
@@ -126,17 +128,15 @@ export const QueuePlaylistModal: React.FC = () => {
           <div className="flex md:hidden items-center rounded-xl border border-white/10 bg-zinc-900 p-0.5">
             <button
               onClick={() => setMobileTab('queue')}
-              className={`rounded-lg px-3 py-1 text-xs font-bold transition-colors ${
-                mobileTab === 'queue' ? 'bg-purple-600 text-white' : 'text-zinc-400 hover:text-white'
-              }`}
+              className={`rounded-lg px-3 py-1 text-xs font-bold transition-colors ${mobileTab === 'queue' ? 'bg-purple-600 text-white' : 'text-zinc-400 hover:text-white'
+                }`}
             >
               A continuación ({queue.length})
             </button>
             <button
               onClick={() => setMobileTab('player')}
-              className={`rounded-lg px-3 py-1 text-xs font-bold transition-colors ${
-                mobileTab === 'player' ? 'bg-purple-600 text-white' : 'text-zinc-400 hover:text-white'
-              }`}
+              className={`rounded-lg px-3 py-1 text-xs font-bold transition-colors ${mobileTab === 'player' ? 'bg-purple-600 text-white' : 'text-zinc-400 hover:text-white'
+                }`}
             >
               Reproductor
             </button>
@@ -177,14 +177,13 @@ export const QueuePlaylistModal: React.FC = () => {
         {/* Content Area */}
         <div className="flex-1 overflow-hidden">
           <div className="grid h-full grid-cols-1 md:grid-cols-12 divide-y md:divide-y-0 md:divide-x divide-white/10">
-            
+
             {/* ============================================================== */}
             {/* LEFT COLUMN: Currently Playing Track & Big Controls            */}
             {/* ============================================================== */}
             <div
-              className={`h-full flex-col justify-between overflow-y-auto p-6 md:p-8 md:col-span-5 lg:col-span-5 ${
-                mobileTab === 'player' ? 'flex' : 'hidden md:flex'
-              }`}
+              className={`h-full flex-col justify-between overflow-y-auto p-6 md:p-8 md:col-span-5 lg:col-span-5 ${mobileTab === 'player' ? 'flex' : 'hidden md:flex'
+                }`}
             >
               {/* Top: Album Art & Visualizer aura */}
               <div className="flex flex-col items-center text-center">
@@ -196,9 +195,8 @@ export const QueuePlaylistModal: React.FC = () => {
                     <img
                       src={currentBeat.coverUrl}
                       alt={currentBeat.title}
-                      className={`h-full w-full object-cover transition-transform duration-700 ${
-                        isPlaying ? 'scale-105' : 'scale-100'
-                      }`}
+                      className={`h-full w-full object-cover transition-transform duration-700 ${isPlaying ? 'scale-105' : 'scale-100'
+                        }`}
                     />
                     {isPlaying && (
                       <div className="absolute inset-0 bg-purple-600/10 mix-blend-overlay animate-pulse" />
@@ -224,9 +222,8 @@ export const QueuePlaylistModal: React.FC = () => {
                       title={isLiked ? 'Quitar de favoritos' : 'Guardar en favoritos'}
                     >
                       <Heart
-                        className={`h-5 w-5 transition-transform ${
-                          isLiked ? 'fill-pink-500 text-pink-500 scale-110' : ''
-                        }`}
+                        className={`h-5 w-5 transition-transform ${isLiked ? 'fill-pink-500 text-pink-500 scale-110' : ''
+                          }`}
                       />
                     </button>
                   </div>
@@ -242,6 +239,11 @@ export const QueuePlaylistModal: React.FC = () => {
                     </span>
                     <span>•</span>
                     <span className="font-mono text-xs text-zinc-400">{currentBeat.key}</span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1 font-mono text-xs text-purple-300" title={`${currentBeat.plays.toLocaleString()} vistas / reproducciones`}>
+                      <Headphones className="h-3.5 w-3.5 text-purple-400" />
+                      <span>{formatPlays(currentBeat.plays)}</span>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -308,17 +310,16 @@ export const QueuePlaylistModal: React.FC = () => {
                   {/* Repeat Mode */}
                   <button
                     onClick={toggleRepeat}
-                    className={`relative p-2 rounded-xl transition-all ${
-                      repeatMode !== 'off'
+                    className={`relative p-2 rounded-xl transition-all ${repeatMode !== 'off'
                         ? 'text-purple-300 bg-purple-500/20 border border-purple-500/40 shadow-lg shadow-purple-500/20'
                         : 'text-zinc-500 hover:text-zinc-300'
-                    }`}
+                      }`}
                     title={
                       repeatMode === 'one'
                         ? 'Repitiendo canción actual'
                         : repeatMode === 'all'
-                        ? 'Repitiendo lista completa'
-                        : 'Bucle desactivado'
+                          ? 'Repitiendo lista completa'
+                          : 'Bucle desactivado'
                     }
                   >
                     {repeatMode === 'one' ? (
@@ -360,9 +361,8 @@ export const QueuePlaylistModal: React.FC = () => {
             {/* RIGHT COLUMN: Queue / Playlist (A continuación)               */}
             {/* ============================================================== */}
             <div
-              className={`h-full flex-col overflow-hidden md:col-span-7 lg:col-span-7 ${
-                mobileTab === 'queue' ? 'flex' : 'hidden md:flex'
-              }`}
+              className={`h-full flex-col overflow-hidden md:col-span-7 lg:col-span-7 ${mobileTab === 'queue' ? 'flex' : 'hidden md:flex'
+                }`}
             >
               {/* Queue Subheader */}
               <div className="flex items-center justify-between border-b border-white/5 bg-zinc-950/60 px-5 py-3 text-xs">
@@ -383,11 +383,10 @@ export const QueuePlaylistModal: React.FC = () => {
                   return (
                     <div
                       key={`${beat.id}-${idx}`}
-                      className={`group relative flex items-center justify-between gap-3 rounded-2xl border p-2.5 sm:p-3 transition-all ${
-                        isCurrent
+                      className={`group relative flex items-center justify-between gap-3 rounded-2xl border p-2.5 sm:p-3 transition-all ${isCurrent
                           ? 'border-purple-500/50 bg-gradient-to-r from-purple-950/40 to-zinc-900/80 shadow-lg shadow-purple-900/20'
                           : 'border-white/5 bg-zinc-950/50 hover:border-white/20 hover:bg-zinc-900/60'
-                      }`}
+                        }`}
                     >
                       {/* Left: Reorder Arrows & Number */}
                       <div className="flex items-center gap-1.5 shrink-0">
@@ -456,9 +455,8 @@ export const QueuePlaylistModal: React.FC = () => {
                         <div className="flex flex-col min-w-0 overflow-hidden">
                           <div className="flex items-center gap-1.5">
                             <span
-                              className={`truncate text-xs sm:text-sm font-bold ${
-                                isCurrent ? 'text-purple-300' : 'text-white'
-                              }`}
+                              className={`truncate text-xs sm:text-sm font-bold ${isCurrent ? 'text-purple-300' : 'text-white'
+                                }`}
                             >
                               {beat.title}
                             </span>
@@ -476,6 +474,14 @@ export const QueuePlaylistModal: React.FC = () => {
                             <span>•</span>
                             <span className="font-mono text-[11px] text-zinc-500">
                               {formatTime(beat.duration)}
+                            </span>
+                            <span>•</span>
+                            <span
+                              className="inline-flex items-center gap-1 font-mono text-[10px] text-zinc-400"
+                              title={`${beat.plays.toLocaleString()} vistas / reproducciones`}
+                            >
+                              <Headphones className="h-2.5 w-2.5 text-zinc-500" />
+                              <span>{formatPlays(beat.plays)}</span>
                             </span>
                           </div>
                         </div>
@@ -527,7 +533,6 @@ export const QueuePlaylistModal: React.FC = () => {
               <div className="border-t border-white/5 bg-zinc-950/70 px-5 py-3 text-xs text-zinc-400 flex items-center justify-between">
                 <span className="flex items-center gap-1.5 text-zinc-400">
                   <Sparkles className="h-3.5 w-3.5 text-purple-400" />
-                  <span>Autoplay inteligente estilo YouTube Music activo</span>
                 </span>
                 <span className="font-mono text-[11px] text-zinc-500">
                   Total en cola: {queue.length}

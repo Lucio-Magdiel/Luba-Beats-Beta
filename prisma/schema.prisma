@@ -23,6 +23,7 @@ model beats {
   estado          beats_estado     @default(publico)
   duracion        String?          @db.VarChar(50)
   nota_musical    String?          @db.VarChar(50)
+  reproducciones  Int?             @default(0)
   fecha_subida    DateTime?        @default(now())
   usuarios        usuarios         @relation(fields: [id_productor], references: [id], onDelete: Cascade, map: "beats_ibfk_1")
   favoritos       favoritos[]

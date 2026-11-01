@@ -55,6 +55,13 @@ const defaultLicenses = (basePrice: number) => [
 
 export async function GET() {
   try {
+    // Asegurar que la columna reproducciones existe
+    try {
+      await prisma.$executeRawUnsafe(
+        `ALTER TABLE beats ADD COLUMN IF NOT EXISTS reproducciones INT DEFAULT 0;`
+      );
+    } catch (_) {}
+
     const dbBeats = await prisma.beats.findMany({
       where: {
         estado: 'publico',
@@ -125,7 +132,7 @@ export async function GET() {
         waveform: generateWaveform(b.id * 1.7),
         priceFrom: priceNum,
         priceFromPEN: Math.round(priceNum * 3.75),
-        plays: 1200 + b.id * 350,
+        plays: Number((b as any).reproducciones ?? 0),
         likes: 150 + b.id * 45,
         isFeatured: b.id % 2 === 0,
         isFree,

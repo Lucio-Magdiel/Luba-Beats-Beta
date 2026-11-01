@@ -128,7 +128,7 @@ export async function getBeatBySlugOrId(slugOrId: string): Promise<Beat | null> 
         waveform: generateWaveform(dbBeat.id),
         priceFrom: isFree ? 0 : priceNum,
         priceFromPEN: isFree ? 0 : Math.round(priceNum * 3.75),
-        plays: 120 + dbBeat.id * 15,
+        plays: Number((dbBeat as any).reproducciones ?? 0),
         likes: 18 + dbBeat.id * 3,
         isFeatured: dbBeat.id % 2 === 0,
         isFree,

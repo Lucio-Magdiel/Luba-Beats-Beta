@@ -2,11 +2,12 @@
 
 
 import Link from 'next/link';
-import { Play, Pause, ShoppingCart, Heart, CheckCircle2, Download } from 'lucide-react';
+import { Play, Pause, ShoppingCart, Heart, CheckCircle2, Download, Headphones } from 'lucide-react';
 import { Beat } from '@/types/beat';
 import { useAudioStore } from '@/store/useAudioStore';
 import { useCartStore } from '@/store/useCartStore';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
+import { formatPlays } from '@/lib/formatPlays';
 
 interface BeatRowProps {
   beat: Beat;
@@ -116,11 +117,19 @@ export const BeatRow: React.FC<BeatRowProps> = ({ beat, index }) => {
                 className={`h-3 w-3 shrink-0 ${isBeat ? 'text-emerald-400' : 'text-purple-400'}`}
               />
             )}
+            <span className="sm:hidden text-zinc-600">•</span>
+            <span
+              className="sm:hidden inline-flex items-center gap-0.5 text-[10px] text-zinc-400 font-mono"
+              title={`${beat.plays.toLocaleString()} vistas`}
+            >
+              <Headphones className="h-2.5 w-2.5 text-zinc-500" />
+              <span>{formatPlays(beat.plays)}</span>
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Musical Specs: Genre, BPM, Key */}
+      {/* Musical Specs: Genre, BPM, Key, Plays */}
       <div className="hidden sm:flex items-center gap-3 text-xs">
         <span
           className={`rounded-md px-2 py-0.5 font-semibold border ${isBeat
@@ -133,6 +142,13 @@ export const BeatRow: React.FC<BeatRowProps> = ({ beat, index }) => {
         <span className="font-mono text-zinc-400">{beat.bpm} BPM</span>
         <span className="rounded-md bg-zinc-900 px-2 py-0.5 font-mono text-cyan-300 border border-cyan-500/20">
           {beat.key}
+        </span>
+        <span
+          className="flex items-center gap-1 font-mono text-[11px] text-zinc-400"
+          title={`${beat.plays.toLocaleString()} reproducciones / vistas`}
+        >
+          <Headphones className="h-3.5 w-3.5 text-zinc-500" />
+          <span>{formatPlays(beat.plays)}</span>
         </span>
       </div>
 

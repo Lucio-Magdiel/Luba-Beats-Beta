@@ -131,7 +131,7 @@ export async function getUserProfile(username: string): Promise<UserProfileData 
         waveform: generateWaveform(b.id),
         priceFrom: isFree ? 0 : priceNum,
         priceFromPEN: isFree ? 0 : Math.round(priceNum * 3.75),
-        plays: 120 + b.id * 15,
+        plays: Number((b as any).reproducciones ?? 0),
         likes: 18 + b.id * 3,
         isFeatured: b.id % 2 === 0,
         isFree,

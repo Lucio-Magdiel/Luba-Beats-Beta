@@ -2,11 +2,12 @@
 
 
 import Link from 'next/link';
-import { Play, Pause, ShoppingCart, Heart, CheckCircle2, Download } from 'lucide-react';
+import { Play, Pause, ShoppingCart, Heart, CheckCircle2, Download, Headphones } from 'lucide-react';
 import { Beat } from '@/types/beat';
 import { useAudioStore } from '@/store/useAudioStore';
 import { useCartStore } from '@/store/useCartStore';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
+import { formatPlays } from '@/lib/formatPlays';
 
 interface BeatCardProps {
   beat: Beat;
@@ -148,21 +149,32 @@ export const BeatCard: React.FC<BeatCardProps> = ({ beat }) => {
             {beat.title}
           </Link>
 
-          {/* Producer / Artist linking to Public Profile */}
-          <div className="mt-1 flex items-center gap-1.5 text-xs text-zinc-400">
-            <Link
-              href={`/perfil/${beat.producer.handle || beat.producer.name}`}
-              className="truncate hover:text-zinc-200 transition-colors"
+          {/* Producer / Artist linking to Public Profile & Plays */}
+          <div className="mt-1 flex items-center justify-between text-xs text-zinc-400">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Link
+                href={`/perfil/${beat.producer.handle || beat.producer.name}`}
+                className="truncate hover:text-zinc-200 transition-colors"
+              >
+                {beat.producer.name}
+              </Link>
+              {beat.producer.verified && (
+                <CheckCircle2
+                  className={`h-3.5 w-3.5 shrink-0 ${
+                    isBeat ? 'text-emerald-400' : 'text-purple-400'
+                  }`}
+                />
+              )}
+            </div>
+
+            {/* Views counter */}
+            <span
+              className="flex items-center gap-1 font-mono text-[11px] text-zinc-400 shrink-0"
+              title={`${beat.plays.toLocaleString()} reproducciones / vistas`}
             >
-              {beat.producer.name}
-            </Link>
-            {beat.producer.verified && (
-              <CheckCircle2
-                className={`h-3.5 w-3.5 shrink-0 ${
-                  isBeat ? 'text-emerald-400' : 'text-purple-400'
-                }`}
-              />
-            )}
+              <Headphones className="h-3 w-3 text-zinc-500" />
+              <span>{formatPlays(beat.plays)}</span>
+            </span>
           </div>
         </div>
 
