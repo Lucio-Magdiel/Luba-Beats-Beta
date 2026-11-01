@@ -88,6 +88,11 @@ export async function GET(req: NextRequest) {
             foto_perfil: true,
             verificado_google: true
           }
+        },
+        _count: {
+          select: {
+            favoritos: true
+          }
         }
       },
       take: 6,
@@ -137,8 +142,8 @@ export async function GET(req: NextRequest) {
         waveform: generateWaveform(b.id * 1.7),
         priceFrom: priceNum,
         priceFromPEN: Math.round(priceNum * 3.75),
-        plays: 1200 + b.id * 350,
-        likes: 150 + b.id * 45,
+        plays: Number((b as any).reproducciones ?? 0),
+        likes: b._count?.favoritos ?? 0,
         isFeatured: false,
         isFree,
         createdAt: b.fecha_subida?.toISOString() || new Date().toISOString(),

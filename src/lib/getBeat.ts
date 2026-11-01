@@ -63,6 +63,9 @@ export async function getBeatBySlugOrId(slugOrId: string): Promise<Beat | null> 
         where: { id: numericId },
         include: {
           usuarios: true,
+          _count: {
+            select: { favoritos: true },
+          },
         },
       });
     }
@@ -78,6 +81,9 @@ export async function getBeatBySlugOrId(slugOrId: string): Promise<Beat | null> 
         },
         include: {
           usuarios: true,
+          _count: {
+            select: { favoritos: true },
+          },
         },
       });
     }
@@ -129,7 +135,7 @@ export async function getBeatBySlugOrId(slugOrId: string): Promise<Beat | null> 
         priceFrom: isFree ? 0 : priceNum,
         priceFromPEN: isFree ? 0 : Math.round(priceNum * 3.75),
         plays: Number((dbBeat as any).reproducciones ?? 0),
-        likes: 18 + dbBeat.id * 3,
+        likes: (dbBeat as any)._count?.favoritos ?? 0,
         isFeatured: dbBeat.id % 2 === 0,
         isFree,
         isFreeDownload: isFree,

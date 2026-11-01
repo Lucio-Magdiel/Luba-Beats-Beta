@@ -80,6 +80,7 @@ interface AudioStore {
   shuffleQueue: () => void;
   clearQueue: () => void;
   playFromQueue: (index: number) => void;
+  updateBeatLikes: (beatId: string, isFav: boolean, totalLikes?: number) => void;
 }
 
 export const useAudioStore = create<AudioStore>((set, get) => ({
@@ -419,5 +420,28 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
       queue: updatedQueue,
       catalog: updatedCatalog,
     });
+  },
+
+  updateBeatLikes: (beatId: string, isFav: boolean, totalLikes?: number) => {
+    const { catalog, queue, currentBeat } = get();
+    const cleanId = String(beatId);
+
+    const calcLikes = (current: number) => {
+      if (typeof totalLikes === 'number') return totalLikes;
+      return isFav ? (current || 0) + 1 : Math.max(0, (current || 1) - 1);
+    };
+
+    const newCatalog = catalog.map((b) =>
+      b.id === cleanId ? { ...b, likes: calcLikes(b.likes) } : b
+    );
+    const newQueue = queue.map((b) =>
+      b.id === cleanId ? { ...b, likes: calcLikes(b.likes) } : b
+    );
+    const newCurrent =
+      currentBeat && currentBeat.id === cleanId
+        ? { ...currentBeat, likes: calcLikes(currentBeat.likes) }
+        : currentBeat;
+
+    set({ catalog: newCatalog, queue: newQueue, currentBeat: newCurrent });
   }
 }));

@@ -50,6 +50,7 @@ export const QueuePlaylistModal: React.FC = () => {
     removeFromQueue,
     moveQueueItem,
     playFromQueue,
+    playBeat,
   } = useAudioStore();
 
   const { openLicenseModal } = useCartStore();
@@ -57,6 +58,29 @@ export const QueuePlaylistModal: React.FC = () => {
 
   // Mobile tab view: 'queue' (A continuación) or 'player' (Reproductor)
   const [mobileTab, setMobileTab] = useState<'queue' | 'player'>('queue');
+  const [isLoadingLiked, setIsLoadingLiked] = useState(false);
+
+  const handleLoadLikedSongs = async () => {
+    try {
+      setIsLoadingLiked(true);
+      const res = await fetch('/api/playlists/liked');
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Inicia sesión para escuchar tus canciones que te gustan');
+        return;
+      }
+      if (!data.playlist?.beats || data.playlist.beats.length === 0) {
+        alert('Aún no tienes canciones en tu playlist de favoritos. Dale me gusta ❤️ a algunas pistas para verlas aquí.');
+        return;
+      }
+      // Reproducir primera pista y reemplazar la cola con la playlist
+      playBeat(data.playlist.beats[0], data.playlist.beats);
+    } catch (err) {
+      console.error('Error al cargar playlist de canciones que te gustan:', err);
+    } finally {
+      setIsLoadingLiked(false);
+    }
+  };
 
   // Close on Escape key
   useEffect(() => {
@@ -218,13 +242,16 @@ export const QueuePlaylistModal: React.FC = () => {
                     </h2>
                     <button
                       onClick={() => toggleFavorite(currentBeat.id)}
-                      className="p-1 text-zinc-400 hover:text-pink-500 transition-colors"
+                      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 bg-white/5 hover:bg-pink-500/10 text-zinc-400 hover:text-pink-500 transition-all border border-white/5 hover:border-pink-500/20 active:scale-95"
                       title={isLiked ? 'Quitar de favoritos' : 'Guardar en favoritos'}
                     >
                       <Heart
-                        className={`h-5 w-5 transition-transform ${isLiked ? 'fill-pink-500 text-pink-500 scale-110' : ''
+                        className={`h-4 w-4 transition-transform ${isLiked ? 'fill-pink-500 text-pink-500 scale-110' : ''
                           }`}
                       />
+                      <span className={`text-xs font-mono font-bold ${isLiked ? 'text-pink-400' : 'text-zinc-400'}`}>
+                        {currentBeat.likes || 0}
+                      </span>
                     </button>
                   </div>
 
@@ -365,14 +392,24 @@ export const QueuePlaylistModal: React.FC = () => {
                 }`}
             >
               {/* Queue Subheader */}
-              <div className="flex items-center justify-between border-b border-white/5 bg-zinc-950/60 px-5 py-3 text-xs">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 bg-zinc-950/60 px-4 sm:px-5 py-2.5 text-xs">
                 <div className="flex items-center gap-2 font-bold text-zinc-300">
                   <Layers className="h-4 w-4 text-purple-400" />
-                  <span>A continuación (Cola Dinámica)</span>
+                  <span>A continuación</span>
+                  <span className="text-[11px] text-zinc-500 hidden lg:inline">
+                    (Usa las flechas para ordenar)
+                  </span>
                 </div>
-                <span className="text-[11px] text-zinc-500">
-                  Usa las flechas para reordenar o elimina con la papelera
-                </span>
+                
+                <button
+                  onClick={handleLoadLikedSongs}
+                  disabled={isLoadingLiked}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-pink-500/30 bg-pink-500/10 px-3 py-1 text-xs font-semibold text-pink-300 hover:bg-pink-500/20 hover:border-pink-500/50 transition-all active:scale-95 disabled:opacity-50"
+                  title="Cargar y escuchar tu playlist automática de canciones favoritas"
+                >
+                  <Heart className="h-3.5 w-3.5 fill-pink-500 text-pink-500" />
+                  <span>{isLoadingLiked ? 'Cargando...' : 'Canciones que te gustan'}</span>
+                </button>
               </div>
 
               {/* Playlist Tracks Scrollable List */}
@@ -482,6 +519,14 @@ export const QueuePlaylistModal: React.FC = () => {
                             >
                               <Headphones className="h-2.5 w-2.5 text-zinc-500" />
                               <span>{formatPlays(beat.plays)}</span>
+                            </span>
+                            <span>•</span>
+                            <span
+                              className="inline-flex items-center gap-1 font-mono text-[10px] text-zinc-400"
+                              title={`${beat.likes || 0} me gusta`}
+                            >
+                              <Heart className="h-2.5 w-2.5 text-pink-500/80 fill-pink-500/30" />
+                              <span>{beat.likes || 0}</span>
                             </span>
                           </div>
                         </div>

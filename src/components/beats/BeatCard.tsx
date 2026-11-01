@@ -88,16 +88,18 @@ export const BeatCard: React.FC<BeatCardProps> = ({ beat }) => {
           </span>
         </div>
 
-        {/* Like Button on Top Right */}
+        {/* Like Button on Top Right with likes counter */}
         <button
           onClick={(e) => {
             e.stopPropagation();
             toggleFavorite(beat.id);
           }}
-          className="absolute top-2.5 right-2.5 flex h-8 w-8 items-center justify-center rounded-lg bg-black/60 text-zinc-300 backdrop-blur-md transition-transform hover:scale-110 hover:text-pink-500"
+          className="absolute top-2.5 right-2.5 flex items-center gap-1 h-7 px-2 rounded-lg bg-black/60 text-zinc-300 backdrop-blur-md transition-transform hover:scale-105 hover:text-pink-500"
           aria-label="Guardar en favoritos"
+          title={`${beat.likes ?? 0} me gusta`}
         >
-          <Heart className={`h-4 w-4 ${liked ? 'fill-pink-500 text-pink-500' : ''}`} />
+          <Heart className={`h-3.5 w-3.5 ${liked ? 'fill-pink-500 text-pink-500' : ''}`} />
+          <span className="font-mono text-[11px] text-zinc-300 font-semibold">{beat.likes ?? 0}</span>
         </button>
 
         {/* Big Center Play/Pause button with Colored Neon Gradient */}

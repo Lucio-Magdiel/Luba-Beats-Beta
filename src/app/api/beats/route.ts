@@ -78,6 +78,11 @@ export async function GET() {
             foto_perfil: true,
             verificado_google: true
           }
+        },
+        _count: {
+          select: {
+            favoritos: true
+          }
         }
       },
       orderBy: {
@@ -133,7 +138,7 @@ export async function GET() {
         priceFrom: priceNum,
         priceFromPEN: Math.round(priceNum * 3.75),
         plays: Number((b as any).reproducciones ?? 0),
-        likes: 150 + b.id * 45,
+        likes: b._count?.favoritos ?? 0,
         isFeatured: b.id % 2 === 0,
         isFree,
         createdAt: b.fecha_subida?.toISOString() || new Date().toISOString(),

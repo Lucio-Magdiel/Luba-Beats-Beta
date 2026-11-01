@@ -78,6 +78,11 @@ export async function getUserProfile(username: string): Promise<UserProfileData 
           where: {
             estado: 'publico',
           },
+          include: {
+            _count: {
+              select: { favoritos: true },
+            },
+          },
           orderBy: {
             id: 'desc',
           },
@@ -132,7 +137,7 @@ export async function getUserProfile(username: string): Promise<UserProfileData 
         priceFrom: isFree ? 0 : priceNum,
         priceFromPEN: isFree ? 0 : Math.round(priceNum * 3.75),
         plays: Number((b as any).reproducciones ?? 0),
-        likes: 18 + b.id * 3,
+        likes: (b as any)._count?.favoritos ?? 0,
         isFeatured: b.id % 2 === 0,
         isFree,
         isFreeDownload: isFree,

@@ -164,10 +164,12 @@ export const BeatRow: React.FC<BeatRowProps> = ({ beat, index }) => {
             e.stopPropagation();
             toggleFavorite(beat.id);
           }}
-          className="text-zinc-500 hover:text-pink-500 transition-colors p-1"
+          className="flex items-center gap-1 text-zinc-500 hover:text-pink-500 transition-colors p-1"
           aria-label="Me gusta"
+          title={`${beat.likes ?? 0} me gusta`}
         >
           <Heart className={`h-4 w-4 ${liked ? 'fill-pink-500 text-pink-500' : ''}`} />
+          <span className="font-mono text-[11px] text-zinc-400">{beat.likes ?? 0}</span>
         </button>
 
         {/* Price Tag or GRATIS */}

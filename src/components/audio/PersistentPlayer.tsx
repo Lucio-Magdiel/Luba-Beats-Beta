@@ -234,15 +234,17 @@ export const PersistentPlayer: React.FC = () => {
                 )}
               </button>
 
-              {/* Like */}
+              {/* Like with counter */}
               <button
                 onClick={() => toggleFavorite(currentBeat.id)}
-                className="p-1.5 text-zinc-400 hover:text-pink-500 transition-colors"
+                className="flex items-center gap-1 p-1 text-zinc-400 hover:text-pink-500 transition-colors"
                 aria-label="Dar me gusta"
+                title={`${currentBeat.likes ?? 0} me gusta`}
               >
                 <Heart
                   className={"h-4 w-4 transition-transform " + (isLiked ? "fill-pink-500 text-pink-500 scale-110" : "")}
                 />
+                <span className="font-mono text-[10px] text-zinc-400">{currentBeat.likes ?? 0}</span>
               </button>
 
               {/* Play/Pause */}
@@ -349,18 +351,20 @@ export const PersistentPlayer: React.FC = () => {
                 </div>
               </div>
 
-              {/* Favorite button */}
+              {/* Favorite button with likes counter */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleFavorite(currentBeat.id);
                 }}
-                className="ml-auto text-zinc-400 hover:text-pink-500 transition-colors p-1"
+                className="ml-auto flex items-center gap-1 text-zinc-400 hover:text-pink-500 transition-colors p-1"
                 aria-label="Dar me gusta"
+                title={`${currentBeat.likes ?? 0} me gusta`}
               >
                 <Heart
                   className={"h-4 w-4 transition-transform " + (isLiked ? "fill-pink-500 text-pink-500 scale-110" : "")}
                 />
+                <span className="font-mono text-[11px] text-zinc-400">{currentBeat.likes ?? 0}</span>
               </button>
             </div>
 

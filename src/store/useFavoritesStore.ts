@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useAudioStore } from './useAudioStore';
 
 interface FavoritesStore {
   favoriteIds: Set<string>;
@@ -56,6 +57,7 @@ export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
       nextIds.add(numericId);
     }
     set({ favoriteIds: nextIds });
+    useAudioStore.getState().updateBeatLikes(beatId, !currentlyFav);
 
     try {
       const res = await fetch('/api/favorites', {
@@ -67,11 +69,13 @@ export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
       if (!res.ok) {
         // Revertir si hubo error (por ejemplo, si no ha iniciado sesión)
         set({ favoriteIds });
+        useAudioStore.getState().updateBeatLikes(beatId, currentlyFav);
         const errData = await res.json().catch(() => ({}));
         return { success: false, isFavorite: currentlyFav, error: errData.error };
       }
 
       const data = await res.json();
+      useAudioStore.getState().updateBeatLikes(beatId, data.isFavorite, data.totalLikes);
       return {
         success: true,
         isFavorite: data.isFavorite,
@@ -81,6 +85,7 @@ export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
       console.error('Error al guardar favorito:', err);
       // Revertir
       set({ favoriteIds });
+      useAudioStore.getState().updateBeatLikes(beatId, currentlyFav);
       return { success: false, isFavorite: currentlyFav };
     }
   },

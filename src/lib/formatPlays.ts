@@ -16,3 +16,4 @@ export function formatPlays(plays: number = 0): string {
   }
   return plays.toLocaleString('es-PE');
 }
+

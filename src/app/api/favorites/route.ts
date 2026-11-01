@@ -80,6 +80,26 @@ export async function POST(req: NextRequest) {
         where: { id: existing.id },
       });
       isFavorite = false;
+
+      // Sincronizar quitando de la playlist automática "Canciones que te gustan"
+      try {
+        const likedPlaylist = await prisma.playlists.findFirst({
+          where: {
+            id_usuario: userId,
+            nombre: 'Canciones que te gustan',
+          },
+        });
+        if (likedPlaylist) {
+          await prisma.playlist_beats.deleteMany({
+            where: {
+              id_playlist: likedPlaylist.id,
+              id_beat: beatId,
+            },
+          });
+        }
+      } catch (errSync) {
+        console.warn('Error al sincronizar playlist de me gusta:', errSync);
+      }
     } else {
       // Agregar a favoritos
       await prisma.favoritos.create({
@@ -90,6 +110,47 @@ export async function POST(req: NextRequest) {
         },
       });
       isFavorite = true;
+
+      // Sincronizar creando/añadiendo a la playlist automática "Canciones que te gustan"
+      try {
+        let likedPlaylist = await prisma.playlists.findFirst({
+          where: {
+            id_usuario: userId,
+            nombre: 'Canciones que te gustan',
+          },
+        });
+
+        if (!likedPlaylist) {
+          likedPlaylist = await prisma.playlists.create({
+            data: {
+              id_usuario: userId,
+              nombre: 'Canciones que te gustan',
+              descripcion: 'Colección automática de tus canciones y beats favoritos en Luba Beats.',
+              imagen_portada: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=600&q=80',
+              es_publica: false,
+            },
+          });
+        }
+
+        const existingPb = await prisma.playlist_beats.findFirst({
+          where: {
+            id_playlist: likedPlaylist.id,
+            id_beat: beatId,
+          },
+        });
+
+        if (!existingPb) {
+          await prisma.playlist_beats.create({
+            data: {
+              id_playlist: likedPlaylist.id,
+              id_beat: beatId,
+              fecha_agregado: new Date(),
+            },
+          });
+        }
+      } catch (errSync) {
+        console.warn('Error al sincronizar playlist de me gusta:', errSync);
+      }
     }
 
     // Obtener total actualizado de favoritos para este beat
